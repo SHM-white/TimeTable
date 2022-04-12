@@ -6,6 +6,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "framework.h"
 #include "TimeTable.h"
 #include "New.h"
+#include "tchar.h"
 //#include <string>
 //#undef UNICODE
 #define MAX_LOADSTRING 100
@@ -90,21 +91,21 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY));
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MY);
     //wcex.lpszMenuName = 0;
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
-}
+};
 
 //
 //   函数: InitInstance(HINSTANCE, int)
@@ -118,21 +119,21 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // 将实例句柄存储在全局变量中
-   HWND hWnd = CreateWindow(szWindowClass, L"课程表",
-       WS_OVERLAPPEDWINDOW, 40, 25, 250, 58, NULL, NULL, hInstance, NULL);
-   //HWND hWnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MAIN), GetDesktopWindow(),WndProc);
+    hInst = hInstance; // 将实例句柄存储在全局变量中
+    HWND hWnd = CreateWindowW(szWindowClass, (LPCWSTR)"课程表",
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, 40, 25, 250, 57, NULL, NULL, hInstance, NULL);
+    //HWND hWnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MAIN), GetDesktopWindow(),WndProc);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+    if (!hWnd)
+    {
+        return FALSE;
+    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
-   return TRUE;
-}
+    return TRUE;
+};
 
 //
 //  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -148,11 +149,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    /*static HWND      hChild[1];
-    HDC                   hdc;
-    PAINTSTRUCT     ps;
-    RECT                   rect;
-    static int             cxChar, cyChar;*/
+        /*static HWND      hChild[1];
+        HDC                   hdc;
+        PAINTSTRUCT     ps;
+        RECT                   rect;
+        static int             cxChar, cyChar;*/
     case WM_CREATE:
     {
         HWND hdlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MAIN), hWnd, (DLGPROC)MAIN);
@@ -162,37 +163,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        // 分析菜单选择:
+        switch (wmId)
         {
-            int wmId = LOWORD(wParam);
-            // 分析菜单选择:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            case IDM_NEW:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_NEW), hWnd, NEW);
-                break;
-            case IDM_MAIN:
-               ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MAIN), hWnd, (DLGPROC)MAIN), SW_SHOW);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        case IDM_NEW:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_NEW), hWnd, NEW);
+            break;
+        case IDM_MAIN:
+            ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MAIN), hWnd, (DLGPROC)MAIN), SW_SHOW);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
+    }
+    break;
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 在此处添加使用 hdc 的任何绘图代码...
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        // TODO: 在此处添加使用 hdc 的任何绘图代码...
 
-            EndPaint(hWnd, &ps);
-        }
-        break;
+        EndPaint(hWnd, &ps);
+    }
+    break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -200,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
-}
+};
 
 // “关于”框的消息处理程序。
 INT_PTR CALLBACK MAIN(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -210,14 +211,14 @@ INT_PTR CALLBACK MAIN(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
-        char buf[128];
-        SendMessage(GetDlgItem(hDlg, IDC_LIST), LB_ADDSTRING, 0, (LPARAM)L"星期|序号 |    1    |    2    |    3    |    4    |    5    |    6    |    7    |    8    |    9    |    10    |    11    |    12    |");
+        char buf[1024];
+        SendMessage(GetDlgItem(hDlg, IDC_LIST), LB_ADDSTRING, 0, (LPARAM)"0星期|序号 |    1    |    2    |    3    |    4    |    5    |    6    |    7    |    8    |    9    |    10    |    11    |    12    |");
         SetFocus(GetDlgItem(hDlg, IDC_LIST));
         ifstream cofig_file;
         cofig_file.open("cofig.txt");
-        while (cofig_file.getline(buf,128,'\n')) {
-            SendMessage(GetDlgItem(hDlg, IDC_LIST), LB_ADDSTRING, 0, buf);
-            for (int i = 0; i < 128 ; i++) {
+        while (cofig_file.getline(buf,1024,'\n')) {
+            SendMessage(GetDlgItem(hDlg, IDC_LIST), LB_ADDSTRING, 0, (LPARAM)buf);
+            for (int i = 0; i < 1024 ; i++) {
                 buf[i] = NULL;
             };
         };
@@ -296,10 +297,10 @@ INT_PTR CALLBACK NEW(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
             ofstream cofig_file;
             cofig_file.open("cofig.txt", ios::app);
             int a = GetWindowTextLength(GetDlgItem(hDlg, IDC_EDIT1));
-            if (!(cofig_file.fail()||a==0|| a >90)) {
-                TCHAR text[100];
-                GetWindowText(GetDlgItem(hDlg, IDC_EDIT1), text, 100);
-                cofig_file << x << " ";
+            if (!(cofig_file.fail()||a==0|| a >1024)) {
+                TCHAR text[1024];
+                GetWindowText(GetDlgItem(hDlg, IDC_EDIT1), text, 1024);
+                cofig_file << x << "                    ";
                 //cofig_file.put((char)text);
                 for (int i = 0; i < a; i++) {
                     cofig_file<<(char)text[i] ;
@@ -310,11 +311,11 @@ INT_PTR CALLBACK NEW(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
                 
                 //MessageBox(hDlg, text, L"", MB_OK);
                 //MessageBox(hDlg, (char)text, L"", MB_OK);
-                MessageBox(hDlg, L"Successful", L"", MB_OK);
+                MessageBox(hDlg, "Successful", "", MB_OK);
                 cofig_file.close();
             }
             else {
-                MessageBox(hDlg,L"Failed", L"", MB_OK);
+                MessageBox(hDlg,"Failed", "", MB_OK);
             };
             return (INT_PTR)TRUE;
             break;
