@@ -7,6 +7,7 @@
 #define IDS_APP_TITLE                   103
 #define IDD_ABOUTBOX                    103
 #define IDM_ABOUT                       104
+#define IDC_AbotButton                  104
 #define IDM_EXIT                        105
 #define IDD_OLE_PROPPAGE_LARGE          105
 #define IDI_TIMETABLE20                 107
@@ -17,6 +18,8 @@
 #define IDD_DIALOG1                     130
 #define IDD_EDITLESSON                  130
 #define IDD_DIALOG2                     131
+#define IDC_EditButton                  132
+#define IDT_TIMER1                      133
 #define IDC_LESSONLIST                  1003
 #define IDC_EDIT1                       1004
 #define IDC_BUTTON1                     1005
@@ -29,7 +32,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32772
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           110

@@ -13,6 +13,10 @@ public:
 	int mAddLesson(std::string Lesson);
 	int mGetTime(size_t count);
 	char mGetLesson(size_t count);
+	std::string mGetCurrentTime();
+
+	
+	
 private:
 	std::vector<std::string> mLessons{};
 	std::vector<int> mTime{};

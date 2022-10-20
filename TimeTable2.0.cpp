@@ -1,9 +1,13 @@
 ﻿// TimeTable2.0.cpp : 定义应用程序的入口点。
 //
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #include "framework.h"
 #include "TimeTable2.0.h"
 #include "Timetable.h"
+#include <tchar.h>
 //#include "Timetable.cpp"
 
 #define MAX_LOADSTRING 100
@@ -12,7 +16,8 @@
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-
+TimeTable timetable("1.txt");
+HWND hStaticText;
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -30,6 +35,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 在此处放置代码。
+    
 
     // 初始化全局字符串
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -46,6 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+    
     // 主消息循环:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -100,8 +107,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 将实例句柄存储在全局变量中
-
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED|WS_MINIMIZEBOX|WS_SYSMENU|WS_CAPTION,
+   
+   HWND hWnd = CreateWindowW(szWindowClass, (LPCWSTR)("TimeTable"), WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
       CW_USEDEFAULT, 0, 300, 200, nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
@@ -111,7 +118,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
-   DialogBox(hInstance, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
+   //DialogBox(hInstance, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
 
    return TRUE;
 }
@@ -132,22 +139,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        HWND hdlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, Dialog2);
-        ShowWindow(hdlg, SW_SHOWNA);
+        
+        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 200, 50, hWnd, NULL, hInst, NULL);
+        HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 95, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
+        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("修改"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 125, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
+        SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
+        //wsprintfW(TEXT("当前时间："));
+        //wsprintfW((LPCWSTR)timetable.mGetCurrentTime());
     }
         
         return DefWindowProc(hWnd, message, wParam, lParam);
+    case WM_TIMER:
+
+        switch (wParam)
+        {
+        case IDT_TIMER1:
+            // process the 1-second timer 
+            SetWindowText(hStaticText, (LPCTSTR)(TEXT("%s"), timetable.mGetCurrentTime().c_str()));
+            return 0;
+        }
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
             // 分析菜单选择:
             switch (wmId)
             {
-            case IDM_ABOUT:
+            case IDC_AbotButton:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
+                break;
+            case IDC_EditButton:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
