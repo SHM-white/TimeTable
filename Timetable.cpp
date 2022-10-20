@@ -2,23 +2,19 @@
 
 #include "Timetable.h"
 #include <Windows.h>
+#include "include\json\json.h"
 
-int TimeTable::mAddTime(std::string Time)
+int TimeTable::mAddLesson(int Days,std::string Lesson,std::string Time)
 {
-    return 0;
-}
-int TimeTable::mAddLesson(std::string Lesson)
-{
-    return 0;
-}
-int TimeTable::mGetTime(size_t count)
-{
+    Json::Reader reader;
+    Json::Value value;
+
     return 0;
 }
 
-char TimeTable::mGetLesson(size_t count)
+std::string TimeTable::mGetCurrentLesson()
 {
-    return 0;
+    return std::string("1");
 }
 
 std::string TimeTable::mGetCurrentTime()

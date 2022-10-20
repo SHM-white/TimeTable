@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\SHM_white\Documents\source\repos\TimeTable2.0\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -136,6 +139,9 @@
     <ClInclude Include="TimeTable2.0.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\lib_json\json_reader.cpp" />
+    <ClCompile Include="src\lib_json\json_value.cpp" />
+    <ClCompile Include="src\lib_json\json_writer.cpp" />
     <ClCompile Include="Timetable.cpp" />
     <ClCompile Include="TimeTable2.0.cpp" />
   </ItemGroup>

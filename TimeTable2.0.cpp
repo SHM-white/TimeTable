@@ -8,6 +8,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "TimeTable2.0.h"
 #include "Timetable.h"
 #include <tchar.h>
+#include "include\json\json.h"
 //#include "Timetable.cpp"
 
 #define MAX_LOADSTRING 100
@@ -18,6 +19,7 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TimeTable timetable("1.txt");
 HWND hStaticText;
+
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -155,7 +157,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case IDT_TIMER1:
             // process the 1-second timer 
-            SetWindowText(hStaticText, (LPCTSTR)(TEXT("%s"), timetable.mGetCurrentTime().c_str()));
+            std::string time{ "当前时间："+timetable.mGetCurrentTime()+"\n"+timetable.mGetCurrentLesson()};
+            SetWindowText(hStaticText, (LPCTSTR)("%s",time.c_str()));
             return 0;
         }
         break;
@@ -206,8 +209,6 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     case WM_INITDIALOG:
         
         return (INT_PTR)TRUE;
-
-    
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
