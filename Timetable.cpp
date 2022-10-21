@@ -45,7 +45,7 @@ std::string TimeTable::mGetCurrentLesson()
     strftime(tmp2, sizeof(tmp2), "%H%M", localtime(&timep));
     if (!in.is_open())
     {
-        return std::string("");
+        return std::string("无法打开配置文件");
     };
 
     if (reader.parse(in, root)) {
@@ -54,7 +54,7 @@ std::string TimeTable::mGetCurrentLesson()
             std::string sBeginTime = Lessons[i][0].asString();
             int iBeginTime = atoi(sBeginTime.c_str());
             int tmp3 = atoi(tmp2);
-            bool a = iBeginTime < tmp3&& iBeginTime + 45 > tmp3;
+            bool a = (iBeginTime % 100 + (int)(iBeginTime / 100) * 60) < (tmp3 % 100 + (int)(tmp3 / 100) * 60) && (iBeginTime % 100 + (int)(iBeginTime / 100) * 60) + 45 > (tmp3 % 100 + (int)(tmp3 / 100) * 60);
             if (a) {
                 in.close();
                 return std::string(Lessons[i][1].asString());

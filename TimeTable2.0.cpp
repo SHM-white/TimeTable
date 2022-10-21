@@ -175,7 +175,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DestroyWindow(hWnd);
                 break;
             case IDC_EditButton:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
+                MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
+                //DialogBox(hInst, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -207,7 +208,7 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     switch (message)
     {
     case WM_INITDIALOG:
-        timetable.mGetCurrentLesson();
+        //timetable.mGetCurrentLesson();
         SendMessage(GetDlgItem(hDlg, IDC_LESSONLIST),LB_ADDSTRING,0,(LPARAM)TEXT("1,\n,676,\t,755"));
         return (INT_PTR)TRUE;
 
