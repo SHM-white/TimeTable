@@ -17,7 +17,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-TimeTable timetable("1.txt");
+TimeTable timetable("config.json");
 HWND hStaticText;
 
 // 此代码模块中包含的函数的前向声明:
@@ -142,7 +142,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         
-        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 200, 50, hWnd, NULL, hInst, NULL);
+        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 250, 35, hWnd, NULL, hInst, NULL);
         HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 95, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
         HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("修改"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 125, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
         SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
@@ -157,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case IDT_TIMER1:
             // process the 1-second timer 
-            std::string time{ "当前时间："+timetable.mGetCurrentTime()+"\n"+timetable.mGetCurrentLesson()};
+            std::string time{ "当前时间："+timetable.mGetCurrentTime()+"\n当前课程："+timetable.mGetCurrentLesson()};
             SetWindowText(hStaticText, (LPCTSTR)("%s",time.c_str()));
             return 0;
         }
@@ -207,15 +207,14 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     switch (message)
     {
     case WM_INITDIALOG:
-        
+        timetable.mGetCurrentLesson();
+        SendMessage(GetDlgItem(hDlg, IDC_LESSONLIST),LB_ADDSTRING,0,(LPARAM)TEXT("1,\n,676,\t,755"));
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
-        case IDC_ABOUT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hDlg, About);
-            break;
+        
         case IDOK:
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;

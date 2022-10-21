@@ -9,7 +9,8 @@ class TimeTable {
 public:
 	TimeTable() = delete;
 	TimeTable(std::string path) : mConfig_path{path} {};
-	int mAddLesson(int Days,std::string Lesson,std::string Time);
+	int mAddLesson(std::string Days,std::string Lesson,std::string Time);
+	std::string mGetLesson(size_t count);
 	std::string mGetCurrentLesson();
 	std::string mGetCurrentTime();
 
@@ -21,6 +22,6 @@ private:
 	std::string mCurrentTime;
 	/*enum Days
 	{
-		Monday,Tuseday,Wednesday,Thurday,Friday,Saterday,Sunday
+		Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday
 	};*/
 };
