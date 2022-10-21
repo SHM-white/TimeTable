@@ -111,7 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
    HWND hWnd = CreateWindowW(szWindowClass, (LPCWSTR)("TimeTable"), WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
-      CW_USEDEFAULT, 0, 300, 200, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, 250, 100, nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
       return FALSE;
@@ -142,9 +142,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         
-        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 250, 35, hWnd, NULL, hInst, NULL);
-        HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 95, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
-        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("修改"), WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 220, 125, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
+        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 160, 35, hWnd, NULL, hInst, NULL);
+        HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD , 175, 5, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
+        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("修改"), WS_VISIBLE | WS_CHILD , 175, 32, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
         SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
         //wsprintfW(TEXT("当前时间："));
         //wsprintfW((LPCWSTR)timetable.mGetCurrentTime());
