@@ -26,6 +26,11 @@ int TimeTable::mAddLesson(std::string Days,std::string Lesson,std::string Time)
     return 0;
 }
 
+int TimeTable::mTimeToMin(int input)
+{
+    return (input-input%100)/100*60+input%100;
+}
+
 std::string TimeTable::mGetLesson(size_t count)
 {
     return std::string();
@@ -54,7 +59,7 @@ std::string TimeTable::mGetCurrentLesson()
             std::string sBeginTime = Lessons[i][0].asString();
             int iBeginTime = atoi(sBeginTime.c_str());
             int tmp3 = atoi(tmp2);
-            bool a = (iBeginTime % 100 + (int)(iBeginTime / 100) * 60) < (tmp3 % 100 + (int)(tmp3 / 100) * 60) && (iBeginTime % 100 + (int)(iBeginTime / 100) * 60) + 45 > (tmp3 % 100 + (int)(tmp3 / 100) * 60);
+            bool a = mTimeToMin(iBeginTime) < mTimeToMin(tmp3) && mTimeToMin(iBeginTime) + 45 > mTimeToMin(tmp3);
             if (a) {
                 in.close();
                 return std::string(Lessons[i][1].asString());
