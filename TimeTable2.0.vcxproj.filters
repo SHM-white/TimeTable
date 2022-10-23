@@ -35,9 +35,6 @@
     <ClCompile Include="TimeTable2.0.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Timetable.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\lib_json\json_reader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,6 +42,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\lib_json\json_writer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Timetable.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

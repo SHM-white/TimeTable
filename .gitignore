@@ -32,6 +32,21 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+test_of_time/[Dd]ebug/
+test_of_time/[Dd]ebugPublic/
+test_of_time/[Rr]elease/
+test_of_time/[Rr]eleases/
+test_of_time/x64/
+test_of_time/x86/
+test_of_time/[Ww][Ii][Nn]32/
+test_of_time/[Aa][Rr][Mm]/
+test_of_time/[Aa][Rr][Mm]64/
+test_of_time/bld/
+test_of_time/[Bb]in/
+test_of_time/[Oo]bj/
+test_of_time/[Oo]ut/
+test_of_time/[Ll]og/
+test_of_time/[Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

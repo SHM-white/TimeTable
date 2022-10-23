@@ -26,7 +26,8 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    AddLesson(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    Dialog2(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    DialogMore(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -142,9 +143,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         
-        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 160, 35, hWnd, NULL, hInst, NULL);
+        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 5, 10, 170, 35, hWnd, NULL, hInst, NULL);
         HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD , 175, 5, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
-        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("修改"), WS_VISIBLE | WS_CHILD , 175, 32, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
+        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("更多"), WS_VISIBLE | WS_CHILD , 175, 32, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
         SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
         //wsprintfW(TEXT("当前时间："));
         //wsprintfW((LPCWSTR)timetable.mGetCurrentTime());
@@ -176,7 +177,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case IDC_EditButton:
                 MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
-                //DialogBox(hInst, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_MORE), hWnd, DialogMore);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -200,7 +201,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-INT_PTR CALLBACK    Dialog2(HWND, UINT, WPARAM, LPARAM) {
+INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+
+        case IDOK:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDC_EditButton:
+            DialogBox(hInst , MAKEINTRESOURCE(IDD_EDITLESSON), hDlg, AddLesson);
+            break;
+        case IDC_SHOWTEXT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_TEXTVIEW), hDlg, TextView);
+            break;
+        default:
+            break;
+        }
+        break;
+    }
     return (INT_PTR)FALSE;
 };
 INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -227,6 +257,35 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         default:
             break;
         } 
+        break;
+    }
+    return (INT_PTR)FALSE;
+};
+INT_PTR CALLBACK TextView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        //timetable.mGetCurrentLesson();
+        
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+
+        case IDOK:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        default:
+            break;
+        }
         break;
     }
     return (INT_PTR)FALSE;

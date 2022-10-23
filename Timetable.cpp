@@ -26,6 +26,13 @@ int TimeTable::mAddLesson(std::string Days,std::string Lesson,std::string Time)
     return 0;
 }
 
+std::string TimeTable::mGetTextFromFile(std::string TextPath)
+{
+    std::fstream file(TextPath, std::ios::in);
+    file.get();
+    return std::string();
+}
+
 int TimeTable::mTimeToMin(int input)
 {
     return (input-input%100)/100*60+input%100;

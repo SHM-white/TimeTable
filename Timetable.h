@@ -10,7 +10,7 @@ public:
 	TimeTable() = delete;
 	TimeTable(std::string path) : mConfig_path{path} {};
 	int mAddLesson(std::string Days,std::string Lesson,std::string Time);
-	int mTimeToMin(int input);
+	std::string mGetTextFromFile(std::string TextPath);
 	std::string mGetLesson(size_t count);
 	std::string mGetCurrentLesson();
 	std::string mGetCurrentTime();
@@ -21,6 +21,7 @@ private:
 	std::string mConfig_path;
 	std::string mCurrentLesson;
 	std::string mCurrentTime;
+	int mTimeToMin(int input);
 	/*enum Days
 	{
 		Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday
