@@ -5,7 +5,7 @@
 #include <fstream>
 #include "include\json\json.h"
 
-int TimeTable::mAddLesson(std::string Days,std::string Lesson,std::string Time)
+int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
 {
     Json::Reader reader;
     Json::Value root;
@@ -16,10 +16,12 @@ int TimeTable::mAddLesson(std::string Days,std::string Lesson,std::string Time)
     if (!os.is_open()) {
         return 0;
     }
-    Current.append(Time);
+    
     Current.append(Lesson);
+    Current.append(sBegin);
+    Current.append(sEnd);
     reader.parse(os, root);
-    root[Days]["Lessons"].append(Current);
+    root[week]["Lessons"].append(Current);
     os.seekp(std::ios::beg);
     os << sw.write(root);
     os.close();
@@ -45,36 +47,40 @@ std::string TimeTable::mGetLesson(size_t count)
 
 std::string TimeTable::mGetCurrentLesson()
 {
+
     Json::Reader reader;
     Json::Value root;
     std::ifstream in(mConfig_path, std::ios::in);
-    std::string CurrentLesson;
+    static Lesson CurrentLesson;
     time_t timep;
     time(&timep);
-    char tmp[256];
-    char tmp2[256];
-    strftime(tmp, sizeof(tmp), "%a", localtime(&timep));
-    strftime(tmp2, sizeof(tmp2), "%H%M", localtime(&timep));
+    char week[256];
+    char timeCurrentTime[256];
+    strftime(week, sizeof(week), "%a", localtime(&timep));
+    strftime(timeCurrentTime, sizeof(timeCurrentTime), "%H%M", localtime(&timep));
+    int iCurrentTime = mTimeToMin(atoi(timeCurrentTime));
     if (!in.is_open())
     {
         return std::string("无法打开配置文件");
     };
-
-    if (reader.parse(in, root)) {
-        const Json::Value Lessons = root[tmp]["Lessons"];
-        for (unsigned int i = 0; i < Lessons.size(); ++i) {
-            std::string sBeginTime = Lessons[i][0].asString();
-            int iBeginTime = atoi(sBeginTime.c_str());
-            int tmp3 = atoi(tmp2);
-            bool a = mTimeToMin(iBeginTime) < mTimeToMin(tmp3) && mTimeToMin(iBeginTime) + 45 > mTimeToMin(tmp3);
-            if (a) {
-                in.close();
-                return std::string(Lessons[i][1].asString());
+    if (!((CurrentLesson.mGetBeginTime() < iCurrentTime) && (iCurrentTime < CurrentLesson.mGetEndTime()))) {
+        if (reader.parse(in, root)) {
+            const Json::Value Lessons = root[week]["Lessons"];
+            for (unsigned int i = 0; i < Lessons.size(); ++i) {
+                std::string sBeginTime = Lessons[i][1].asString();
+                std::string sEndTime = Lessons[i][2].asString();
+                int iBeginTime = mTimeToMin(atoi(sBeginTime.c_str()));
+                int iEndTime = mTimeToMin(atoi(sEndTime.c_str()));
+                if ((iBeginTime < iCurrentTime) && (iEndTime > iCurrentTime)) {
+                    in.close();
+                    CurrentLesson.mSetValue(Lessons[i][0].asString(),iBeginTime, iEndTime);
+                    break;
+                }
             }
-        }
+        } 
     }
     in.close();
-    return std::string("暂未获取");
+    return CurrentLesson.mGetName();
 }
 
 std::string TimeTable::mGetCurrentTime()

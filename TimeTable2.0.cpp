@@ -15,8 +15,8 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
-WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
-WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
+TCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
+TCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TimeTable timetable("config.json");
 HWND hStaticText;
 
@@ -28,6 +28,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    AddLesson(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    DialogMore(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -41,8 +42,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     
 
     // 初始化全局字符串
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_TIMETABLE20, szWindowClass, MAX_LOADSTRING);
+    LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDC_TIMETABLE20, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // 执行应用程序初始化:
@@ -78,7 +79,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
+    WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -90,11 +91,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TIMETABLE20));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = 0;
+    wcex.lpszMenuName   = MAKEINTRESOURCE(IDC_TIMETABLE20);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return RegisterClassExW(&wcex);
+    return RegisterClassEx(&wcex);
 }
 
 //
@@ -111,8 +112,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
-   HWND hWnd = CreateWindowW(szWindowClass, (LPCWSTR)("TimeTable"), WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
-      CW_USEDEFAULT, 0, 250, 100, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd = CreateWindowA(szWindowClass, szTitle, WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
+      CW_USEDEFAULT, 0, 250, 120, nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
       return FALSE;
@@ -138,15 +139,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    const int line{ 4 };
+    HFONT hfont;
+    static std::string time[line];
+    static int y=25;
     switch (message)
     {
     case WM_CREATE:
     {
         
+        /*
         hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 5, 10, 170, 35, hWnd, NULL, hInst, NULL);
         HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD , 175, 5, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
         HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("更多"), WS_VISIBLE | WS_CHILD , 175, 32, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
+        */
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
+        
         //wsprintfW(TEXT("当前时间："));
         //wsprintfW((LPCWSTR)timetable.mGetCurrentTime());
     }
@@ -158,26 +167,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case IDT_TIMER1:
             // process the 1-second timer 
-            std::string time{ "当前时间："+timetable.mGetCurrentTime()+"\n当前课程："+timetable.mGetCurrentLesson()};
-            SetWindowText(hStaticText, (LPCTSTR)("%s",time.c_str()));
+            time[0] = "当前时间：" + timetable.mGetCurrentTime();
+            time[1]= "\n当前课程：" + timetable.mGetCurrentLesson();
+            InvalidateRect(hWnd, NULL, TRUE);
+            UpdateWindow(hWnd);
             return 0;
         }
         break;
     case WM_COMMAND:
         {
-            int wmId = LOWORD(wParam);
+        HMENU hMenu = GetMenu(hWnd);
+        int wmId = LOWORD(wParam);
+        static MENUITEMINFO MenuItemInfo;
+        LPMENUITEMINFO lpMenuItemInfo=&MenuItemInfo;
+        lpMenuItemInfo->cbSize = sizeof(MENUITEMINFO);
+        lpMenuItemInfo->fMask = MIIM_STATE;
+
             // 分析菜单选择:
             switch (wmId)
             {
             case IDC_AbotButton:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
+            case IDM_ADD:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDLESSON), hWnd, AddLesson);
+                break;
+            case IDM_TOTOP:
+                GetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);
+                if (lpMenuItemInfo->fState & MFS_CHECKED) {
+                    SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                    lpMenuItemInfo->fState = MFS_UNCHECKED;
+                }
+                else {
+                    SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                    lpMenuItemInfo->fState = MFS_CHECKED;
+                }
+                SetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);
+                break;
+            case IDM_SHOWALL:
+                MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
             case IDC_EditButton:
                 MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_MORE), hWnd, DialogMore);
+                //DialogBox(hInst, MAKEINTRESOURCE(IDD_MORE), hWnd, DialogMore);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -188,6 +223,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            hfont = CreateFont(25, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, "微软雅黑");
+            SelectObject(hdc, hfont);
+            TextOut(hdc, 2, 2, time[0].c_str(), (int)time[0].size());
+            TextOut(hdc, 2, 2+y, time[1].c_str(), (int)time[1].size());
+            DeleteObject(hfont);
             // TODO: 在此处添加使用 hdc 的任何绘图代码...
             EndPaint(hWnd, &ps);
         }
@@ -234,18 +274,36 @@ INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     return (INT_PTR)FALSE;
 };
 INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    
+    TCHAR szLessonName[50]{};
+    TCHAR szBeginTime[8]{};
+    TCHAR szEndTime[8]{};
+    TCHAR szWeek[8]{};
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
     case WM_INITDIALOG:
         //timetable.mGetCurrentLesson();
-        SendMessage(GetDlgItem(hDlg, IDC_LESSONLIST),LB_ADDSTRING,0,(LPARAM)TEXT("1,\n,676,\t,755"));
+       
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
-        
+        case IDC_ADD:
+            //if (
+            //    GetDlgItemText(hDlg, IDC_EDIT4, szWeek, _tclen(szWeek)) ||
+            //    GetDlgItemText(hDlg, IDC_EDIT1, szLessonName, _tclen(szLessonName)) ||
+            //    GetDlgItemText(hDlg, IDC_EDIT2, szBeginTime, _tclen(szBeginTime)) ||
+            //    GetDlgItemText(hDlg, IDC_EDIT3, szEndTime, _tclen(szEndTime))
+            //    ) {
+            //    timetable.mAddLesson(szWeek, szLessonName, szBeginTime, szEndTime);
+            //    MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
+            //    break;
+            //};
+            //MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
+            MessageBox(hDlg, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+            break;
         case IDOK:
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
