@@ -24,6 +24,7 @@
     <ProjectGuid>{362591a0-037c-45c0-85e8-cc89ae87dfb7}</ProjectGuid>
     <RootNamespace>TimeTable20</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <ProjectName>TimeTable</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -141,7 +142,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timetable.h" />
-    <ClInclude Include="TimeTable2.0.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lib_json\json_reader.cpp" />

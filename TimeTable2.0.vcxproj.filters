@@ -24,9 +24,6 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TimeTable2.0.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Timetable.h">
       <Filter>头文件</Filter>
     </ClInclude>
