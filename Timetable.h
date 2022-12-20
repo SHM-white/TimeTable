@@ -34,8 +34,11 @@ public:
 	TimeTable() = delete;
 	TimeTable(std::string path) : mConfig_path{path} {};
 	int mAddLesson(std::string Days,std::string Lesson,std::string sBegin,std::string sEnd);
+	int mAddMoreInfo(std::string Days, std::string Info);
 	std::string mGetTextFromFile(std::string TextPath);
-	std::string mGetLesson(size_t count);
+	int mGetLesson(std::vector<std::string>& input);
+	int mGetAbout(std::string& input);
+	int mGetTodayMoreInfo(std::vector<std::string>& input);
 	std::string mGetCurrentLesson();
 	std::string mGetCurrentTime();
 	

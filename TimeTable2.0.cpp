@@ -28,7 +28,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    AddLesson(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    DialogMore(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
-
+INT_PTR CALLBACK    ShowAll(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -113,7 +113,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
    HWND hWnd = CreateWindowA(szWindowClass, szTitle, WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
-      CW_USEDEFAULT, 0, 250, 120, nullptr, nullptr, hInstance, nullptr);
+      1200, 20, 250, 120, nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
       return FALSE;
@@ -205,13 +205,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);
                 break;
             case IDM_SHOWALL:
-                MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+                ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_SHOWALL), hWnd, ShowAll), SW_SHOW);
+                //MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
-            case IDC_EditButton:
-                MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
+            case IDM_MoreInfo:
+                
+                ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MOREINFO), hWnd, DialogMore), SW_SHOW);
+                //MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
                 //DialogBox(hInst, MAKEINTRESOURCE(IDD_MORE), hWnd, DialogMore);
                 break;
             default:
@@ -242,10 +245,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    std::vector<std::string> Infos;
+    TCHAR szWeek[16];
+    TCHAR szInfo[256];
+
+    //HDC hdc;
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
     case WM_INITDIALOG:
+        if (timetable.mGetTodayMoreInfo(Infos)) {
+            for (auto a : Infos) {
+                SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)a.c_str());
+            }
+        }
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
@@ -260,11 +273,25 @@ INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
             break;
-        case IDC_EditButton:
-            DialogBox(hInst , MAKEINTRESOURCE(IDD_EDITLESSON), hDlg, AddLesson);
+        case IDC_ADD:
+            if (GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szWeek, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT2)) + 1) +
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szInfo, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT1)) + 1))
+            {
+                timetable.mAddMoreInfo(szWeek, szInfo);
+                MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
+                SendMessage(hDlg, WM_COMMAND, 0, IDC_FLASH);
+                break;
+            }
+            MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
             break;
-        case IDC_SHOWTEXT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_TEXTVIEW), hDlg, TextView);
+        case IDC_FLASH:
+            SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_RESETCONTENT,0,0);
+            if (timetable.mGetTodayMoreInfo(Infos)) {
+                for (auto a : Infos) {
+                    SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)a.c_str());
+                }
+            }
+            return (INT_PTR)TRUE;
             break;
         default:
             break;
@@ -276,9 +303,9 @@ INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     
     TCHAR szLessonName[50]{};
-    TCHAR szBeginTime[8]{};
-    TCHAR szEndTime[8]{};
-    TCHAR szWeek[8]{};
+    TCHAR szBeginTime[16]{};
+    TCHAR szEndTime[16]{};
+    TCHAR szWeek[16]{};
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
@@ -291,18 +318,18 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         switch (LOWORD(wParam))
         {
         case IDC_ADD:
-            //if (
-            //    GetDlgItemText(hDlg, IDC_EDIT4, szWeek, _tclen(szWeek)) ||
-            //    GetDlgItemText(hDlg, IDC_EDIT1, szLessonName, _tclen(szLessonName)) ||
-            //    GetDlgItemText(hDlg, IDC_EDIT2, szBeginTime, _tclen(szBeginTime)) ||
-            //    GetDlgItemText(hDlg, IDC_EDIT3, szEndTime, _tclen(szEndTime))
-            //    ) {
-            //    timetable.mAddLesson(szWeek, szLessonName, szBeginTime, szEndTime);
-            //    MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
-            //    break;
-            //};
-            //MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
-            MessageBox(hDlg, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+            if (
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT4), szWeek, GetWindowTextLengthA(GetDlgItem(hDlg,IDC_EDIT4))+1)+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szLessonName, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT1))+1)+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szBeginTime, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT2))+1)+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT3), szEndTime, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT3))+1)
+                ) {
+                timetable.mAddLesson(szWeek, szLessonName, szBeginTime, szEndTime);
+                MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
+                break;
+            };
+            MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
+            //MessageBox(hDlg, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
             break;
         case IDOK:
             EndDialog(hDlg, LOWORD(wParam));
@@ -319,6 +346,52 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     }
     return (INT_PTR)FALSE;
 };
+INT_PTR CALLBACK ShowAll(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    std::vector<std::string> Lessons;
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        //timetable.mGetCurrentLesson();
+        if (timetable.mGetLesson(Lessons)){
+            for (auto a : Lessons) {
+                SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)a.c_str());
+            }
+        }
+
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+
+        case IDOK:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDC_FLASH:
+            SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_RESETCONTENT, 0, 0);
+            if (timetable.mGetLesson(Lessons)){
+                for (auto a : Lessons) {
+                    SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)a.c_str());
+                }
+            }
+            
+            return (INT_PTR)TRUE;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+};
+//以下为暂时没啥用的
 INT_PTR CALLBACK TextView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -351,10 +424,13 @@ INT_PTR CALLBACK TextView(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 // “关于”框的消息处理程序。
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    std::string About;
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
     case WM_INITDIALOG:
+        timetable.mGetAbout(About);
+        SetWindowText(GetDlgItem(hDlg, IDC_EDIT1), About.c_str());
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
