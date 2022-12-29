@@ -1,15 +1,14 @@
-﻿// TimeTable2.0.cpp : 定义应用程序的入口点。
+﻿// 定义应用程序的入口点。
 //
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #include "framework.h"
-//#include "TimeTable2.0.h"
 #include "Timetable.h"
 #include <tchar.h>
 #include "include\json\json.h"
-//#include "Timetable.cpp"
+
 
 #define MAX_LOADSTRING 100
 
@@ -19,6 +18,7 @@ TCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TimeTable timetable("config.json");
 HWND hStaticText;
+WindowSettings windowsettings;
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -29,6 +29,7 @@ INT_PTR CALLBACK    AddLesson(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    DialogMore(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    ShowAll(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    Settings(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -39,7 +40,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 在此处放置代码。
-    
+    timetable.mGetWindowSettings(windowsettings);
 
     // 初始化全局字符串
     LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -69,8 +70,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     return (int) msg.wParam;
 }
-
-
 
 //
 //  函数: MyRegisterClass()
@@ -113,17 +112,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
    HWND hWnd = CreateWindowA(szWindowClass, szTitle, WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
-      1200, 20, 250, 120, nullptr, nullptr, hInstance, nullptr);
+       windowsettings.iWindowX, windowsettings.iWindowY, windowsettings.iWindowWeight, windowsettings.iWindowHeight,
+       nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
       return FALSE;
    }
-
-   
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
-   //DialogBox(hInstance, MAKEINTRESOURCE(IDD_EDITLESSON), hWnd, AddLesson);
-
    return TRUE;
 }
 
@@ -142,25 +138,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     const int line{ 4 };
     HFONT hfont;
     static std::string time[line];
-    static int y=25;
     switch (message)
     {
     case WM_CREATE:
     {
-        
-        /*
-        hStaticText = CreateWindow(_TEXT("static"), NULL, WS_CHILD | WS_VISIBLE, 5, 10, 170, 35, hWnd, NULL, hInst, NULL);
-        HWND hButton1 = CreateWindow(_TEXT("BUTTON"), _TEXT("关于"), WS_VISIBLE | WS_CHILD , 175, 5, 50, 25, hWnd, (HMENU)IDC_AbotButton, hInst, NULL);
-        HWND hButton2 = CreateWindow(_TEXT("BUTTON"), _TEXT("更多"), WS_VISIBLE | WS_CHILD , 175, 32, 50, 25, hWnd, (HMENU)IDC_EditButton, hInst, NULL);
-        */
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         SetTimer(hWnd, IDT_TIMER1, 1000, (TIMERPROC)NULL);
-        
-        //wsprintfW(TEXT("当前时间："));
-        //wsprintfW((LPCWSTR)timetable.mGetCurrentTime());
-    }
-        
         return DefWindowProc(hWnd, message, wParam, lParam);
+    }
     case WM_TIMER:
 
         switch (wParam)
@@ -192,7 +177,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_ADD:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDLESSON), hWnd, AddLesson);
                 break;
-            case IDM_TOTOP:
+            case IDM_TOTOP://切换是否置顶窗口
                 GetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);
                 if (lpMenuItemInfo->fState & MFS_CHECKED) {
                     SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -208,14 +193,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_SHOWALL), hWnd, ShowAll), SW_SHOW);
                 //MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
                 break;
+            case IDM_SETTINGS:
+                MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+                //DialogBox(hInst, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, Settings);
+                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
             case IDM_MoreInfo:
                 
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MOREINFO), hWnd, DialogMore), SW_SHOW);
-                //MessageBox(hWnd, TEXT("开发中"), MB_OK, NULL);
-                //DialogBox(hInst, MAKEINTRESOURCE(IDD_MORE), hWnd, DialogMore);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -226,10 +213,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            hfont = CreateFont(25, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, "微软雅黑");
+            hfont = CreateFont(windowsettings.iFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.sFontName.c_str());
             SelectObject(hdc, hfont);
             TextOut(hdc, 2, 2, time[0].c_str(), (int)time[0].size());
-            TextOut(hdc, 2, 2+y, time[1].c_str(), (int)time[1].size());
+            TextOut(hdc, 2, 2+windowsettings.iLineDistance, time[1].c_str(), (int)time[1].size());
             DeleteObject(hfont);
             // TODO: 在此处添加使用 hdc 的任何绘图代码...
             EndPaint(hWnd, &ps);
@@ -382,6 +369,35 @@ INT_PTR CALLBACK ShowAll(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 }
             }
             
+            return (INT_PTR)TRUE;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+};
+INT_PTR CALLBACK Settings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        //timetable.mGetCurrentLesson();
+
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+
+        case IDOK:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
             break;
         default:

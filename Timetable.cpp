@@ -3,7 +3,7 @@
 #include "Timetable.h"
 #include <Windows.h>
 #include <fstream>
-#include<vector>
+#include <vector>
 #include "include\json\json.h"
 
 int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
@@ -120,6 +120,28 @@ int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
         }
     }
     return 1;
+}
+
+int TimeTable::mGetWindowSettings(WindowSettings& windowsettings)
+{
+    std::ifstream in(mConfig_path, std::ios::in);
+    if (!in.is_open())
+    {
+        return 0;
+    };
+    Json::Reader reader;
+    Json::Value root;
+    if (reader.parse(in, root)) {
+        Json::Value Settings = root["Settings"]["Window"];
+        windowsettings.iWindowHeight = Settings["Height"].asInt();
+        windowsettings.iWindowWeight = Settings["Weight"].asInt();
+        windowsettings.iWindowX = Settings["XY"][0].asInt();
+        windowsettings.iWindowY = Settings["XY"][1].asInt();
+        windowsettings.iFontSize = Settings["FontSize"].asInt();
+        windowsettings.iLineDistance = Settings["LineDistance"].asInt();
+        windowsettings.sFontName = Settings["FontName"].asString();
+    }
+    return 0;
 }
 
 std::string TimeTable::mGetCurrentLesson()

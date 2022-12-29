@@ -23,6 +23,7 @@
 #define IDD_TEXTVIEW                    134
 #define IDD_ADDLESSON                   135
 #define IDD_MOREINFO                    136
+#define IDD_SETTINGS                    137
 #define IDC_LESSONLIST                  1003
 #define IDC_EDIT1                       1004
 #define IDC_ADD                         1005
@@ -35,7 +36,9 @@
 #define IDC_FLASH                       1013
 #define IDC_SHOWTEXT                    1015
 #define IDC_LIST1                       1019
-#define IDC_BUTTON1                     1022
+#define IDC_EDIT11                      1033
+#define IDC_EDIT6                       1033
+#define IDC_EDIT                        1034
 #define ID_32772                        32772
 #define ID_32773                        32773
 #define ID_32774                        32774
@@ -45,6 +48,9 @@
 #define IDM_TOTOP                       32778
 #define ID_32779                        32779
 #define IDM_MoreInfo                    32780
+#define ID_32781                        32781
+#define IDM_SET                         32782
+#define IDM_SETTINGS                    32783
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -52,9 +58,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        137
-#define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1023
+#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
