@@ -140,6 +140,10 @@ int TimeTable::mGetWindowSettings(WindowSettings& windowsettings)
         windowsettings.iFontSize = Settings["FontSize"].asInt();
         windowsettings.iLineDistance = Settings["LineDistance"].asInt();
         windowsettings.sFontName = Settings["FontName"].asString();
+        windowsettings.sLessonNull = Settings["LessonNull"].asString();
+        for (int i = 0; i < Settings["TextFormat"].size(); i++) {
+            windowsettings.sTextFormat.push_back(Settings["TextFormat"][i].asString());
+        }
     }
     return 0;
 }
@@ -183,11 +187,11 @@ std::string TimeTable::mGetCurrentLesson()
     return CurrentLesson.mGetName();
 }
 
-std::string TimeTable::mGetCurrentTime()
+std::string TimeTable::mGetCurrentTime(std::string TextFormat)
 {
     time_t timep;
     time(&timep);
     char tmp[256];
-    strftime(tmp, sizeof(tmp), "%a-%H:%M:%S", localtime(&timep));
+    strftime(tmp, sizeof(tmp), TextFormat.c_str(), localtime(&timep));
     return std::string(tmp);
 }

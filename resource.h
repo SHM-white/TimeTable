@@ -36,7 +36,6 @@
 #define IDC_FLASH                       1013
 #define IDC_SHOWTEXT                    1015
 #define IDC_LIST1                       1019
-#define IDC_EDIT11                      1033
 #define IDC_EDIT6                       1033
 #define IDC_EDIT                        1034
 #define ID_32772                        32772
@@ -48,9 +47,8 @@
 #define IDM_TOTOP                       32778
 #define ID_32779                        32779
 #define IDM_MoreInfo                    32780
-#define ID_32781                        32781
-#define IDM_SET                         32782
 #define IDM_SETTINGS                    32783
+#define IDM_FUTURES                     32786
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -59,7 +57,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        138
-#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_COMMAND_VALUE         32787
 #define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

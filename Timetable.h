@@ -15,6 +15,8 @@ public:
 	int iFontSize{ 25 };
 	int iLineDistance{ 25 };
 	std::string sFontName{ "黑体" };
+	std::vector<std::string> sTextFormat;
+	std::string sLessonNull{ "无" };
 };
 //Lesson类，用来保存课程信息，包括名称，开始时间，结束时间
 class Lesson {
@@ -54,7 +56,7 @@ public:
 	int mGetWindowSettings(WindowSettings& windowsettings);
 	std::string mGetTextFromFile(std::string TextPath);
 	std::string mGetCurrentLesson();
-	std::string mGetCurrentTime();
+	std::string mGetCurrentTime(std::string TextFormat);
 	
 private:
 	//std::vector<std::string> mLessons{};
