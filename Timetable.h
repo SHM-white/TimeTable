@@ -56,9 +56,9 @@ public:
 	int mGetAbout(std::string& input);
 	int mGetTodayMoreInfo(std::vector<std::string>& input);
 	int mGetWindowSettings(WindowSettings& windowsettings);
+	int mGetTextItem(std::string Item, std::string& input);
 	std::string mGetCurrentLesson(std::string& LessonNull);
 	std::string mGetCurrentTime(std::string TextFormat);	
-	//std::string mGetTextFromFile(std::string TextPath);
 private:
 	Lesson CurrentLesson;
 	std::string mConfig_path;
