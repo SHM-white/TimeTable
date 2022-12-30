@@ -46,12 +46,21 @@ int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
     return 0;
 }
 
-//std::string TimeTable::mGetTextFromFile(std::string TextPath)
-//{
-//    std::fstream file(TextPath, std::ios::in);
-//    file.get();
-//    return std::string();
-//}
+int TimeTable::mGetTextItem(std::string Item,std::string& input)
+{
+    std::ifstream in(mConfig_path, std::ios::in);
+    if (!in.is_open())
+    {
+        return 0;
+    };
+    Json::Reader reader;
+    Json::Value root;
+    if (reader.parse(in, root)) {
+        const Json::Value Text = root[Item];
+        input = Text.asString();
+    }
+    return 0;
+}
 
 int TimeTable::mTimeToMin(int input)
 {
@@ -138,6 +147,7 @@ int TimeTable::mGetWindowSettings(WindowSettings& windowsettings)
         windowsettings.iLessonInLine = Settings["LessonInLine"].asInt();
         windowsettings.sFontName = Settings["FontName"].asString();
         windowsettings.sLessonNull = Settings["LessonNull"].asString();
+        windowsettings.sTextFormat.clear();
         for (int i = 0; i < (int)Settings["TextFormat"].size(); i++) {
             windowsettings.sTextFormat.push_back(Settings["TextFormat"][i].asString());
         }
@@ -190,3 +200,5 @@ std::string TimeTable::mGetCurrentTime(std::string TextFormat)
     strftime(tmp, sizeof(tmp), TextFormat.c_str(), localtime(&timep));
     return std::string(tmp);
 }
+
+

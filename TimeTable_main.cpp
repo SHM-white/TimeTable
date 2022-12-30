@@ -30,6 +30,7 @@ INT_PTR CALLBACK    DialogMore(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    ShowAll(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Settings(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    Futures(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -167,6 +168,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 分析菜单选择:
             switch (wmId)
             {
+            //MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
+            //上方注释用来暂时占位未完成的功能
             case IDC_AbotButton:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -187,8 +190,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case IDM_SHOWALL:
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_SHOWALL), hWnd, ShowAll), SW_SHOW);
-                //MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
-                //上方注释用来暂时占位未完成的功能
                 break;
             case IDM_SETTINGS:
                 MessageBox(hWnd, TEXT("咕咕咕"), TEXT("咕咕咕"), MB_OK);
@@ -198,8 +199,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DestroyWindow(hWnd);
                 break;
             case IDM_MoreInfo:
-                
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MOREINFO), hWnd, DialogMore), SW_SHOW);
+                break;
+            case IDM_FUTURES:
+                ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_TEXTVIEW), hWnd, Futures), SW_SHOW);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -234,7 +237,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     std::vector<std::string> Infos;
     TCHAR szWeek[16];
     TCHAR szInfo[256];
@@ -280,7 +283,7 @@ INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
             MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
             break;
         case IDC_FLASH:
-            SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_RESETCONTENT,0,0);
+            SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_RESETCONTENT, 0, 0);
             if (timetable.mGetTodayMoreInfo(Infos)) {
                 for (auto a : Infos) {
                     SendMessage(GetDlgItem(hDlg, IDC_LIST1), LB_ADDSTRING, 0, (LPARAM)a.c_str());
@@ -385,6 +388,35 @@ INT_PTR CALLBACK Settings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+};
+INT_PTR CALLBACK Futures(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    std::string futures;
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        timetable.mGetTextItem("futures", futures);
+        SetWindowText(GetDlgItem(hDlg, IDC_EDIT1), futures.c_str());
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
