@@ -53,12 +53,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
-
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TIMETABLE20));
-
     MSG msg;
-
-    
     // 主消息循环:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -68,7 +64,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
-
     return (int) msg.wParam;
 }
 
