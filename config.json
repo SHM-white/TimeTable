@@ -8,6 +8,7 @@
       "FontName":"微软雅黑",
       "LineDistance": 25,
       "TextFormat":["当前时间：%a-%H:%M:%S","当前课程："],
+      "LessonInLine":2,
       "LessonNull":"无"
     }
   },

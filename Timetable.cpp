@@ -17,7 +17,6 @@ int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin
     if (!os.is_open()) {
         return 0;
     }
-    
     Current.append(Lesson);
     Current.append(sBegin);
     Current.append(sEnd);
@@ -39,7 +38,6 @@ int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
     Json::Reader reader;
     Json::Value root;
     Json::StyledWriter sw;
-
     reader.parse(os, root);
     root[Days]["Infos"].append(Info);
     os.seekp(std::ios::beg);
@@ -48,12 +46,12 @@ int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
     return 0;
 }
 
-std::string TimeTable::mGetTextFromFile(std::string TextPath)
-{
-    std::fstream file(TextPath, std::ios::in);
-    file.get();
-    return std::string();
-}
+//std::string TimeTable::mGetTextFromFile(std::string TextPath)
+//{
+//    std::fstream file(TextPath, std::ios::in);
+//    file.get();
+//    return std::string();
+//}
 
 int TimeTable::mTimeToMin(int input)
 {
@@ -69,7 +67,6 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
     {
         return 0;
     };
-    static Lesson CurrentLesson;
     std::string Days[]{ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
     if (reader.parse(in, root)) {
         for (auto a : Days) {
@@ -78,7 +75,6 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
                 std::string result{ a + "   " + Lessons[i][0].asString() + "   " + Lessons[i][1].asString() + "   " + Lessons[i][2].asString() };
                 input.push_back(result);
             }
-
         }
     }
     return 1;
@@ -139,35 +135,34 @@ int TimeTable::mGetWindowSettings(WindowSettings& windowsettings)
         windowsettings.iWindowY = Settings["XY"][1].asInt();
         windowsettings.iFontSize = Settings["FontSize"].asInt();
         windowsettings.iLineDistance = Settings["LineDistance"].asInt();
+        windowsettings.iLessonInLine = Settings["LessonInLine"].asInt();
         windowsettings.sFontName = Settings["FontName"].asString();
         windowsettings.sLessonNull = Settings["LessonNull"].asString();
-        for (int i = 0; i < Settings["TextFormat"].size(); i++) {
+        for (int i = 0; i < (int)Settings["TextFormat"].size(); i++) {
             windowsettings.sTextFormat.push_back(Settings["TextFormat"][i].asString());
         }
     }
     return 0;
 }
 
-std::string TimeTable::mGetCurrentLesson()
+std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
 {
-
-    Json::Reader reader;
-    Json::Value root;
-    std::ifstream in(mConfig_path, std::ios::in);
-    static Lesson CurrentLesson;
     time_t timep;
     time(&timep);
-    char week[256];
     char timeCurrentTime[256];
-    strftime(week, sizeof(week), "%a", localtime(&timep));
     strftime(timeCurrentTime, sizeof(timeCurrentTime), "%H%M", localtime(&timep));
     int iCurrentTime = mTimeToMin(atoi(timeCurrentTime));
-    if (!in.is_open())
-    {
-        return std::string("无法打开配置文件");
-    };
     if (!((CurrentLesson.mGetBeginTime() <= iCurrentTime) && (iCurrentTime <= CurrentLesson.mGetEndTime()))) {
+        Json::Reader reader;
+        Json::Value root;
+        std::ifstream in(mConfig_path, std::ios::in);
+        if (!in.is_open())
+        {
+            return std::string("无法打开配置文件");
+        };
         if (reader.parse(in, root)) {
+            char week[16];
+            strftime(week, sizeof(week), "%a", localtime(&timep));
             const Json::Value Lessons = root[week]["Lessons"];
             for (unsigned int i = 0; i < Lessons.size(); ++i) {
                 std::string sBeginTime = Lessons[i][1].asString();
@@ -176,14 +171,14 @@ std::string TimeTable::mGetCurrentLesson()
                 int iEndTime = mTimeToMin(atoi(sEndTime.c_str()));
                 if ((iBeginTime <= iCurrentTime) && (iEndTime >= iCurrentTime)) {
                     in.close();
-                    CurrentLesson.mSetValue(Lessons[i][0].asString(),iBeginTime, iEndTime);
+                    CurrentLesson.mSetValue(Lessons[i][0].asString(), iBeginTime, iEndTime);
                     return CurrentLesson.mGetName();
                 }
             }
-            CurrentLesson.mSetValue("", 0, 0);
-        } 
+            CurrentLesson.mSetValue(LessonNull, 0, 0);
+        }
+        in.close();
     }
-    in.close();
     return CurrentLesson.mGetName();
 }
 

@@ -215,8 +215,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             SelectObject(hdc, hfont);
             for (int i = 0; i < windowsettings.sTextFormat.size();i++) {
                 Text = timetable.mGetCurrentTime(windowsettings.sTextFormat[i]);
-                if (i == (windowsettings.sTextFormat.size() - 1)) {
-                    Text += timetable.mGetCurrentLesson();
+                if (i == (windowsettings.iLessonInLine - 1)) {
+                    Text += timetable.mGetCurrentLesson(windowsettings.sLessonNull);
                 }
                 TextOut(hdc, 2, y, Text.c_str(), (int)Text.size());
                 y += windowsettings.iLineDistance;
@@ -296,7 +296,6 @@ INT_PTR CALLBACK    DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     return (INT_PTR)FALSE;
 };
 INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-    
     TCHAR szLessonName[50]{};
     TCHAR szBeginTime[16]{};
     TCHAR szEndTime[16]{};
@@ -455,6 +454,3 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return (INT_PTR)FALSE;
 }
-
-
-

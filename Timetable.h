@@ -1,6 +1,7 @@
 #pragma once
 
 #include<string>
+#include<string_view>
 #include<format>
 #include<vector>
 #include "resource.h"
@@ -14,6 +15,7 @@ public:
 	int iWindowY{ 20 };
 	int iFontSize{ 25 };
 	int iLineDistance{ 25 };
+	int iLessonInLine{ 2 };
 	std::string sFontName{ "ºÚÌå" };
 	std::vector<std::string> sTextFormat;
 	std::string sLessonNull{ "ÎÞ" };
@@ -32,7 +34,7 @@ public:
 	std::string mGetName() {return sName;}
 	int mGetBeginTime() {return iBeginTime;}
 	int mGetEndTime() {return iEndTime;}
-	int mSetValue(std::string s, int b, int e) {
+	int mSetValue(std::string_view s, int b, int e) {
 		iBeginTime = b;
 		iEndTime = e;
 		sName = s;
@@ -54,15 +56,11 @@ public:
 	int mGetAbout(std::string& input);
 	int mGetTodayMoreInfo(std::vector<std::string>& input);
 	int mGetWindowSettings(WindowSettings& windowsettings);
-	std::string mGetTextFromFile(std::string TextPath);
-	std::string mGetCurrentLesson();
-	std::string mGetCurrentTime(std::string TextFormat);
-	
+	std::string mGetCurrentLesson(std::string& LessonNull);
+	std::string mGetCurrentTime(std::string TextFormat);	
+	//std::string mGetTextFromFile(std::string TextPath);
 private:
-	//std::vector<std::string> mLessons{};
-	//std::vector<int> mTime{};
-	//std::string mCurrentLesson;
-	//std::string mCurrentTime;
+	Lesson CurrentLesson;
 	std::string mConfig_path;
 	int mTimeToMin(int input);
 };
