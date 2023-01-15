@@ -49,6 +49,8 @@
 #define IDM_MoreInfo                    32780
 #define IDM_SETTINGS                    32783
 #define IDM_FUTURES                     32786
+#define IDM_MINIMIZE                    32787
+#define ID_Menu                         32788
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -57,7 +59,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        138
-#define _APS_NEXT_COMMAND_VALUE         32787
+#define _APS_NEXT_COMMAND_VALUE         32789
 #define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

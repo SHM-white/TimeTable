@@ -1,11 +1,11 @@
-﻿#pragma warning(disable : 4996)
-
+﻿
 #include "Timetable.h"
 #include <Windows.h>
 #include <fstream>
 #include <vector>
 #include "include\json\json.h"
 
+//TimeTable类的实现函数
 int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
 {
     Json::Reader reader;
@@ -13,7 +13,7 @@ int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin
     Json::StyledWriter sw;
     std::fstream os;
     Json::Value Current;
-    os.open(mConfig_path, std::ios::out | std::ios::in);
+    os.open(mLessonInfoPath, std::ios::out | std::ios::in);
     if (!os.is_open()) {
         return 0;
     }
@@ -31,7 +31,7 @@ int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin
 int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
 {
     std::fstream os;
-    os.open(mConfig_path, std::ios::out | std::ios::in);
+    os.open(mLessonInfoPath, std::ios::out | std::ios::in);
     if (!os.is_open()) {
         return 0;
     }
@@ -46,22 +46,6 @@ int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
     return 0;
 }
 
-int TimeTable::mGetTextItem(std::string Item,std::string& input)
-{
-    std::ifstream in(mConfig_path, std::ios::in);
-    if (!in.is_open())
-    {
-        return 0;
-    };
-    Json::Reader reader;
-    Json::Value root;
-    if (reader.parse(in, root)) {
-        const Json::Value Text = root[Item];
-        input = Text.asString();
-    }
-    return 0;
-}
-
 int TimeTable::mTimeToMin(int input)
 {
     return (input-input%100)/100*60+input%100;
@@ -71,7 +55,7 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
 {
     Json::Reader reader;
     Json::Value root;
-    std::ifstream in(mConfig_path, std::ios::in);
+    std::ifstream in(mLessonInfoPath, std::ios::in);
     if (!in.is_open())
     {
         return 0;
@@ -89,35 +73,16 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
     return 1;
 }
 
-int TimeTable::mGetAbout(std::string& input)
-{
-    std::ifstream in(mConfig_path, std::ios::in);
-    if (!in.is_open())
-    {
-        return 0;
-    };
-    Json::Reader reader;
-    Json::Value root;
-    if (reader.parse(in, root)) {
-        const Json::Value About = root["About"];
-        input=About.asString();        
-    }
-    return 0;
-}
-
 int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
 {
-    std::ifstream in(mConfig_path, std::ios::in);
+    std::ifstream in(mLessonInfoPath, std::ios::in);
     if (!in.is_open())
     {
         return 0;
     };
     Json::Reader reader;
     Json::Value root;
-    time_t timep;
-    time(&timep);
-    char week[256];
-    strftime(week, sizeof(week), "%a", localtime(&timep));
+    std::string week{ mGetCurrentTime("%a") };
     if (reader.parse(in, root)) {
         const Json::Value Infos = root[week]["Infos"];
         for (unsigned int i = 0; i < Infos.size(); ++i) {
@@ -127,52 +92,20 @@ int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
     return 1;
 }
 
-int TimeTable::mGetWindowSettings(WindowSettings& windowsettings)
-{
-    std::ifstream in(mConfig_path, std::ios::in);
-    if (!in.is_open())
-    {
-        return 0;
-    };
-    Json::Reader reader;
-    Json::Value root;
-    if (reader.parse(in, root)) {
-        Json::Value Settings = root["Settings"]["Window"];
-        windowsettings.iWindowHeight = Settings["Height"].asInt();
-        windowsettings.iWindowWeight = Settings["Weight"].asInt();
-        windowsettings.iWindowX = Settings["XY"][0].asInt();
-        windowsettings.iWindowY = Settings["XY"][1].asInt();
-        windowsettings.iFontSize = Settings["FontSize"].asInt();
-        windowsettings.iLineDistance = Settings["LineDistance"].asInt();
-        windowsettings.iLessonInLine = Settings["LessonInLine"].asInt();
-        windowsettings.sFontName = Settings["FontName"].asString();
-        windowsettings.sLessonNull = Settings["LessonNull"].asString();
-        windowsettings.sTextFormat.clear();
-        for (int i = 0; i < (int)Settings["TextFormat"].size(); i++) {
-            windowsettings.sTextFormat.push_back(Settings["TextFormat"][i].asString());
-        }
-    }
-    return 0;
-}
-
 std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
 {
-    time_t timep;
-    time(&timep);
-    char timeCurrentTime[256];
-    strftime(timeCurrentTime, sizeof(timeCurrentTime), "%H%M", localtime(&timep));
-    int iCurrentTime = mTimeToMin(atoi(timeCurrentTime));
+    std::string timeCurrentTime{ mGetCurrentTime("%H%M") };
+    int iCurrentTime = mTimeToMin(atoi(timeCurrentTime.c_str()));
     if (!((CurrentLesson.mGetBeginTime() <= iCurrentTime) && (iCurrentTime <= CurrentLesson.mGetEndTime()))) {
         Json::Reader reader;
         Json::Value root;
-        std::ifstream in(mConfig_path, std::ios::in);
+        std::ifstream in(mLessonInfoPath, std::ios::in);
         if (!in.is_open())
         {
             return std::string("无法打开配置文件");
         };
         if (reader.parse(in, root)) {
-            char week[16];
-            strftime(week, sizeof(week), "%a", localtime(&timep));
+            std::string week{ mGetCurrentTime("%a") };
             const Json::Value Lessons = root[week]["Lessons"];
             for (unsigned int i = 0; i < Lessons.size(); ++i) {
                 std::string sBeginTime = Lessons[i][1].asString();
@@ -192,13 +125,81 @@ std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
     return CurrentLesson.mGetName();
 }
 
-std::string TimeTable::mGetCurrentTime(std::string TextFormat)
+std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
 {
     time_t timep;
     time(&timep);
     char tmp[256];
-    strftime(tmp, sizeof(tmp), TextFormat.c_str(), localtime(&timep));
+    tm structm;
+    localtime_s(&structm, &timep);
+    strftime(tmp, sizeof(tmp), TextFormat.c_str(), &structm);
     return std::string(tmp);
 }
 
+//WindowSettings类的实现函数
+int WindowSettings::mGetWindowSettings()
+{
+    std::ifstream in(msSettingPath, std::ios::in);
+    if (!in.is_open())
+    {
+        return 0;
+    };
+    Json::Reader reader;
+    Json::Value root;
+    if (reader.parse(in, root)) {
+        Json::Value Settings = root["Settings"]["Window"];
+        miWindowHeight = Settings["WindowSize"][1].asInt();
+        miWindowWeight = Settings["WindowSize"][0].asInt();
+        miWindowX = Settings["WindowLocation"][0].asInt();
+        miWindowY = Settings["WindowLocation"][1].asInt();
+        miFontSize = Settings["FontSize"].asInt();
+        miLineDistance = Settings["LineDistance"].asInt();
+        miLessonInLine = Settings["LessonInLine"].asInt();
+        msFontName = Settings["FontName"].asString();
+        msLessonNull = Settings["LessonNull"].asString();
+        msLessonInfoFile = Settings["LessonInfoFile"].asString();
+        msTextFormat.clear();
+        for (int i = 0; i < (int)Settings["TextFormat"].size(); i++) {
+            msTextFormat.push_back(Settings["TextFormat"][i].asString());
+        }
+    }
+    return 0;
+}
 
+int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
+{
+    std::ifstream in(msSettingPath, std::ios::in);
+    if (!in.is_open())
+    {
+        return 0;
+    };
+    Json::Reader reader;
+    Json::Value root;
+    if (reader.parse(in, root)) {
+        const Json::Value Text = root[Item];
+        input = Text.asString();
+    }
+    return 0;
+}
+
+int WindowSettings::mPrintText(HDC& hdc)
+{
+    return 0;
+}
+
+LPMENUITEMINFO WindowSettings::mSwitchMenuItemCheck(HWND& hWnd, HMENU& hMenu,DWORD MenuItem)
+{
+    static MENUITEMINFO MenuItemInfo;
+    LPMENUITEMINFO lpMenuItemInfo = &MenuItemInfo;
+    lpMenuItemInfo->cbSize = sizeof(MENUITEMINFO);
+    lpMenuItemInfo->fMask = MIIM_STATE;//只获取菜单项状态（应该）
+    GetMenuItemInfo(hMenu, MenuItem, FALSE, lpMenuItemInfo);//获取当前状态
+    if (lpMenuItemInfo->fState & MFS_CHECKED) {//菜单项checked
+        lpMenuItemInfo->fState = MFS_UNCHECKED;
+    }
+    else {//菜单项unchecked
+        lpMenuItemInfo->fState = MFS_CHECKED;
+    }
+    SetMenuItemInfo(hMenu, MenuItem, FALSE, lpMenuItemInfo);
+    return lpMenuItemInfo;
+}

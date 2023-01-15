@@ -8,6 +8,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "Timetable.h"
 #include <tchar.h>
 #include "include\json\json.h"
+#include <windowsx.h>
 
 
 #define MAX_LOADSTRING 100
@@ -16,10 +17,9 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 HINSTANCE hInst;                                // 当前实例
 TCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-TimeTable timetable("config.json");
+WindowSettings windowsettings{ "Config.json" };
 HWND hStaticText;
-WindowSettings windowsettings;
-
+TimeTable timetable{ windowsettings.msLessonInfoFile };
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -41,7 +41,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 在此处放置代码。
-    timetable.mGetWindowSettings(windowsettings);
+    
 
     // 初始化全局字符串
     LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -107,8 +107,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
-   HWND hWnd = CreateWindowA(szWindowClass, szTitle, WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_CAPTION,
-       windowsettings.iWindowX, windowsettings.iWindowY, windowsettings.iWindowWeight, windowsettings.iWindowHeight,
+   HWND hWnd = CreateWindowA(szWindowClass, szTitle,
+       WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZE,
+       windowsettings.miWindowX,
+       windowsettings.miWindowY,
+       windowsettings.miWindowWeight,
+       windowsettings.miWindowHeight,
        nullptr, nullptr, hInstance, nullptr);
    if (!hWnd)
    {
@@ -134,6 +138,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     //主窗口消息处理函数
     HFONT hfont;
     static std::string Text;
+    HMENU hMenu, hMenuPopup;
+    TCHAR szMenuItem[64]{ 0 };
+    POINT pt;
     switch (message)
     {
     case WM_CREATE:
@@ -156,10 +163,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         HMENU hMenu = GetMenu(hWnd);
         int wmId = LOWORD(wParam);
-        static MENUITEMINFO MenuItemInfo;
-        LPMENUITEMINFO lpMenuItemInfo=&MenuItemInfo;
-        lpMenuItemInfo->cbSize = sizeof(MENUITEMINFO);
-        lpMenuItemInfo->fMask = MIIM_STATE;//只获取菜单项状态（应该）
+        LPMENUITEMINFO lpMenuItemInfo;
             // 分析菜单选择:
             switch (wmId)
             {
@@ -172,16 +176,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ADDLESSON), hWnd, AddLesson);
                 break;
             case IDM_TOTOP://切换是否置顶窗口
-                GetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);//获取当前状态
+                lpMenuItemInfo=windowsettings.mSwitchMenuItemCheck(hWnd, hMenu, IDM_TOTOP);
+                //返回的结构是已经更改了勾选状态的菜单项属性
                 if (lpMenuItemInfo->fState & MFS_CHECKED) {//菜单项checked
-                    SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-                    lpMenuItemInfo->fState = MFS_UNCHECKED;
+                    SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                 }
                 else {//菜单项unchecked
-                    SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-                    lpMenuItemInfo->fState = MFS_CHECKED;
+                    SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                 }
-                SetMenuItemInfo(hMenu, IDM_TOTOP, FALSE, lpMenuItemInfo);
                 break;
             case IDM_SHOWALL:
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_SHOWALL), hWnd, ShowAll), SW_SHOW);
@@ -199,6 +201,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_FUTURES:
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_TEXTVIEW), hWnd, Futures), SW_SHOW);
                 break;
+            case IDM_MINIMIZE:
+                ShowWindow(hWnd, SW_MINIMIZE);
+                break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -208,20 +213,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            hfont = CreateFont(windowsettings.iFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.sFontName.c_str());
+            hfont = CreateFont(windowsettings.miFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.msFontName.c_str());
             int y = 2;
             SelectObject(hdc, hfont);
-            for (int i = 0; i < windowsettings.sTextFormat.size();i++) {
-                Text = timetable.mGetCurrentTime(windowsettings.sTextFormat[i]);
-                if (i == (windowsettings.iLessonInLine - 1)) {
-                    Text += timetable.mGetCurrentLesson(windowsettings.sLessonNull);
+            for (int i = 0; i < windowsettings.msTextFormat.size();i++) {
+                Text = timetable.mGetCurrentTime(windowsettings.msTextFormat[i]);
+                if (i == (windowsettings.miLessonInLine - 1)) {
+                    Text += timetable.mGetCurrentLesson(windowsettings.msLessonNull);
                 }
                 TextOut(hdc, 2, y, Text.c_str(), (int)Text.size());
-                y += windowsettings.iLineDistance;
+                y += windowsettings.miLineDistance;
             }
             DeleteObject(hfont);
             EndPaint(hWnd, &ps);
         }
+        break;
+    case WM_LBUTTONDOWN:
+        SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+        SendMessage(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        break;
+    case WM_LBUTTONUP:
+        SetCursor(LoadCursor(NULL, IDC_ARROW));
+        break;
+    case WM_RBUTTONDOWN:
+        hMenu = GetMenu(hWnd);
+        hMenuPopup = CreatePopupMenu();
+        for (int i{ 0 }; i < GetMenuItemCount(hMenu); i++) {
+            GetMenuString(hMenu, i, szMenuItem, _countof(szMenuItem), MF_BYPOSITION);
+            AppendMenu(hMenuPopup, MF_STRING | MF_POPUP, (UINT_PTR)GetSubMenu(hMenu, i), szMenuItem);
+        }
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+        ClientToScreen(hWnd, &pt);
+        TrackPopupMenu(hMenuPopup, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, hWnd, NULL);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -410,7 +434,7 @@ INT_PTR CALLBACK Futures(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_INITDIALOG:
-        timetable.mGetTextItem("futures", futures);
+        windowsettings.mGetTextItem("futures", futures);
         SetWindowText(GetDlgItem(hDlg, IDC_EDIT1), futures.c_str());
         return (INT_PTR)TRUE;
 
@@ -467,7 +491,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_INITDIALOG:
-        timetable.mGetAbout(About);
+        windowsettings.mGetTextItem("About", About);
         SetWindowText(GetDlgItem(hDlg, IDC_EDIT1), About.c_str());
         return (INT_PTR)TRUE;
 
