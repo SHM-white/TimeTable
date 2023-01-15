@@ -9,6 +9,9 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <tchar.h>
 #include "include\json\json.h"
 #include <windowsx.h>
+#include "Lesson.h"
+#include "TextFormat.h"
+#include "WindowSettings.h"
 
 
 #define MAX_LOADSTRING 100
@@ -108,7 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 将实例句柄存储在全局变量中
    
    HWND hWnd = CreateWindowA(szWindowClass, szTitle,
-       WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZE,
+       WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
        windowsettings.miWindowX,
        windowsettings.miWindowY,
        windowsettings.miWindowWeight,
@@ -136,7 +139,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //主窗口消息处理函数
-    HFONT hfont;
+    //HFONT hfont;
     static std::string Text;
     HMENU hMenu, hMenuPopup;
     TCHAR szMenuItem[64]{ 0 };
@@ -213,7 +216,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            hfont = CreateFont(windowsettings.miFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.msFontName.c_str());
+            
+            //SetBkColor(hdc, windowsettings.mcBackGroundColor);
+            windowsettings.mPrintText(hdc,timetable);
+
+           /* hfont = CreateFont(windowsettings.miFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.msFontName.c_str());
             int y = 2;
             SelectObject(hdc, hfont);
             for (int i = 0; i < windowsettings.msTextFormat.size();i++) {
@@ -224,7 +231,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 TextOut(hdc, 2, y, Text.c_str(), (int)Text.size());
                 y += windowsettings.miLineDistance;
             }
-            DeleteObject(hfont);
+            DeleteObject(hfont);*/
             EndPaint(hWnd, &ps);
         }
         break;
@@ -248,6 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         TrackPopupMenu(hMenuPopup, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, hWnd, NULL);
         break;
     case WM_DESTROY:
+        KillTimer(hWnd, IDT_TIMER1);
         PostQuitMessage(0);
         break;
     default:

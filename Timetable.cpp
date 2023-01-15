@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include "include\json\json.h"
+#include<format>
 
 //TimeTable类的实现函数
 int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
@@ -136,70 +137,4 @@ std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
     return std::string(tmp);
 }
 
-//WindowSettings类的实现函数
-int WindowSettings::mGetWindowSettings()
-{
-    std::ifstream in(msSettingPath, std::ios::in);
-    if (!in.is_open())
-    {
-        return 0;
-    };
-    Json::Reader reader;
-    Json::Value root;
-    if (reader.parse(in, root)) {
-        Json::Value Settings = root["Settings"]["Window"];
-        miWindowHeight = Settings["WindowSize"][1].asInt();
-        miWindowWeight = Settings["WindowSize"][0].asInt();
-        miWindowX = Settings["WindowLocation"][0].asInt();
-        miWindowY = Settings["WindowLocation"][1].asInt();
-        miFontSize = Settings["FontSize"].asInt();
-        miLineDistance = Settings["LineDistance"].asInt();
-        miLessonInLine = Settings["LessonInLine"].asInt();
-        msFontName = Settings["FontName"].asString();
-        msLessonNull = Settings["LessonNull"].asString();
-        msLessonInfoFile = Settings["LessonInfoFile"].asString();
-        msTextFormat.clear();
-        for (int i = 0; i < (int)Settings["TextFormat"].size(); i++) {
-            msTextFormat.push_back(Settings["TextFormat"][i].asString());
-        }
-    }
-    return 0;
-}
 
-int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
-{
-    std::ifstream in(msSettingPath, std::ios::in);
-    if (!in.is_open())
-    {
-        return 0;
-    };
-    Json::Reader reader;
-    Json::Value root;
-    if (reader.parse(in, root)) {
-        const Json::Value Text = root[Item];
-        input = Text.asString();
-    }
-    return 0;
-}
-
-int WindowSettings::mPrintText(HDC& hdc)
-{
-    return 0;
-}
-
-LPMENUITEMINFO WindowSettings::mSwitchMenuItemCheck(HWND& hWnd, HMENU& hMenu,DWORD MenuItem)
-{
-    static MENUITEMINFO MenuItemInfo;
-    LPMENUITEMINFO lpMenuItemInfo = &MenuItemInfo;
-    lpMenuItemInfo->cbSize = sizeof(MENUITEMINFO);
-    lpMenuItemInfo->fMask = MIIM_STATE;//只获取菜单项状态（应该）
-    GetMenuItemInfo(hMenu, MenuItem, FALSE, lpMenuItemInfo);//获取当前状态
-    if (lpMenuItemInfo->fState & MFS_CHECKED) {//菜单项checked
-        lpMenuItemInfo->fState = MFS_UNCHECKED;
-    }
-    else {//菜单项unchecked
-        lpMenuItemInfo->fState = MFS_CHECKED;
-    }
-    SetMenuItemInfo(hMenu, MenuItem, FALSE, lpMenuItemInfo);
-    return lpMenuItemInfo;
-}

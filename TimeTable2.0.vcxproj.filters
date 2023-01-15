@@ -27,6 +27,15 @@
     <ClInclude Include="Timetable.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Lesson.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowSettings.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TextFormat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lib_json\json_reader.cpp">
@@ -42,6 +51,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TimeTable_main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowSettings.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TextFormat.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
