@@ -219,19 +219,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             //SetBkColor(hdc, windowsettings.mcBackGroundColor);
             windowsettings.mPrintText(hdc,timetable);
-
-           /* hfont = CreateFont(windowsettings.miFontSize, 0, 0, 0, 0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, windowsettings.msFontName.c_str());
-            int y = 2;
-            SelectObject(hdc, hfont);
-            for (int i = 0; i < windowsettings.msTextFormat.size();i++) {
-                Text = timetable.mGetCurrentTime(windowsettings.msTextFormat[i]);
-                if (i == (windowsettings.miLessonInLine - 1)) {
-                    Text += timetable.mGetCurrentLesson(windowsettings.msLessonNull);
-                }
-                TextOut(hdc, 2, y, Text.c_str(), (int)Text.size());
-                y += windowsettings.miLineDistance;
-            }
-            DeleteObject(hfont);*/
             EndPaint(hWnd, &ps);
         }
         break;

@@ -16,6 +16,7 @@ public:
 	WindowSettings(const std::string path)
 		:msSettingPath{ path }
 	{
+		msLessonNull = std::format("’“≤ªµΩ{}", msSettingPath);
 		msTextFormat.push_back(TextFormat());
 		mGetWindowSettings();
 	};
@@ -28,9 +29,9 @@ public:
 	int miWindowWeight{ 250 };
 	int miWindowX{ 20 };
 	int miWindowY{ 20 };
-	int miLessonInLine{ 2 };
+	int miLessonInLine{ 1 };
 	std::vector<TextFormat> msTextFormat;
-	std::string msLessonNull{ "Œﬁ" };
+	std::string msLessonNull;
 	std::string msLessonInfoFile{ "Lessons.json" };
 	COLORREF mcBackGroundColor{ 0x00ffffff };
 private:

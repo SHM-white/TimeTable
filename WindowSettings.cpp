@@ -31,7 +31,6 @@ int WindowSettings::mGetWindowSettings()
             Json::Value Format = Settings["TextFormat"][i];
             TextFormat textformat(Format[2][0].asInt(), Format[2][1].asInt(), Format[3].asInt(), Format[1].asString(), Format[0].asString(), RGB(Format[4][0].asInt(), Format[4][1].asInt(), Format[4][2].asInt()));
             msTextFormat.push_back(textformat);
-            //Format[2][0].asInt(), Format[2][1].asInt(), Format[3].asInt(), Format[1].asString(), Format[0].asString(), RGB(Format[4][0].asInt(), Format[4][1].asInt(), Format[4][2].asInt())
         }
     }
     return 0;
@@ -57,8 +56,6 @@ int WindowSettings::mPrintText(HDC& hdc, TimeTable& timetable)
 {
       int i = 0;
       for (TextFormat a : msTextFormat) {
-          
-          TCHAR szBuf[256];
           HFONT hFont = CreateFont(a.miTextSize, 0, 0, 0,0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, a.msFontName.c_str());
           SelectObject(hdc, hFont);
           SetTextColor(hdc, a.color);

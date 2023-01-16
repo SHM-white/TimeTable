@@ -23,8 +23,8 @@ public:
 		return 0;
 	}
 	POINT mpTextLocation{ 0,0 };
-	int miTextSize{ 25 };
+	int miTextSize{ 20 };
 	std::string msFontName{ "Consolas" };
-	std::string msTextFormat{ "error" };
-	COLORREF color{ 0x00ffffff };
+	std::string msTextFormat{ "error:" };
+	COLORREF color{ 0x00000000 };
 };

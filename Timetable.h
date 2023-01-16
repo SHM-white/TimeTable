@@ -18,6 +18,7 @@ public:
 	int mAddMoreInfo(std::string Days, std::string Info);
 	int mGetLesson(std::vector<std::string>& input);
 	int mGetTodayMoreInfo(std::vector<std::string>& input);
+	int mImportLessonsFromCsv(const std::string path);
 	std::string mGetCurrentLesson(std::string& LessonNull);
 	std::string mGetCurrentTime(const std::string& TextFormat);
 private:

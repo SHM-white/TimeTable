@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CSVEditor.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Lesson.h" />
     <ClInclude Include="Resource.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="WindowSettings.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CSVEditor.cpp" />
     <ClCompile Include="src\lib_json\json_reader.cpp" />
     <ClCompile Include="src\lib_json\json_value.cpp" />
     <ClCompile Include="src\lib_json\json_writer.cpp" />
@@ -164,6 +166,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
+    <None Include="Lessons.json" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

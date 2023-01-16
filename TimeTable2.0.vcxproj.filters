@@ -36,6 +36,9 @@
     <ClInclude Include="TextFormat.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CSVEditor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lib_json\json_reader.cpp">
@@ -59,6 +62,9 @@
     <ClCompile Include="TextFormat.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CSVEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TimeTable2.0.rc">
@@ -75,5 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
+    <None Include="Lessons.json" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

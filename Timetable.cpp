@@ -5,6 +5,7 @@
 #include <vector>
 #include "include\json\json.h"
 #include<format>
+#include "CSVEditor.h"
 
 //TimeTable类的实现函数
 int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
@@ -103,7 +104,7 @@ std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
         std::ifstream in(mLessonInfoPath, std::ios::in);
         if (!in.is_open())
         {
-            return std::string("无法打开配置文件");
+            return std::string(std::format("找不到{}",mLessonInfoPath));
         };
         if (reader.parse(in, root)) {
             std::string week{ mGetCurrentTime("%a") };
@@ -137,4 +138,8 @@ std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
     return std::string(tmp);
 }
 
-
+int TimeTable::mImportLessonsFromCsv(const std::string path)
+{
+    CSVEditor CsvEditor{ path };
+    return 0;
+}
