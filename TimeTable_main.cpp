@@ -4,14 +4,18 @@
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#include "framework.h"
-#include "Timetable.h"
-#include <tchar.h>
-#include "include\json\json.h"
+#include <Windows.h>
+#include <strsafe.h>
 #include <windowsx.h>
+#include <tchar.h>
+
+#include "include\json\json.h"
+
+#include "framework.h"
 #include "Lesson.h"
 #include "TextFormat.h"
 #include "WindowSettings.h"
+#include "Timetable.h"
 
 
 #define MAX_LOADSTRING 100
@@ -34,6 +38,7 @@ INT_PTR CALLBACK    TextView(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    ShowAll(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Settings(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Futures(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    ImportLessons(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -198,6 +203,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+            case IDM_IMPORT:
+                ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_IMPORT), hWnd, ImportLessons), SW_SHOW);
+                break;
             case IDM_MoreInfo:
                 ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_MOREINFO), hWnd, DialogMore), SW_SHOW);
                 break;
@@ -279,8 +287,10 @@ INT_PTR CALLBACK DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
             return (INT_PTR)TRUE;
             break;
         case IDC_ADD://检测文本框是否有文本，并存储
-            if (GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szWeek, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT2)) + 1) +
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szInfo, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT1)) + 1))
+            if (
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szWeek, sizeof(szWeek)) +
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szInfo, sizeof(szInfo))
+                )
             {
                 timetable.mAddMoreInfo(szWeek, szInfo);
                 MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
@@ -328,10 +338,10 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         {
         case IDC_ADD:
             if (
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT4), szWeek, GetWindowTextLengthA(GetDlgItem(hDlg,IDC_EDIT4))+1)+
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szLessonName, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT1))+1)+
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szBeginTime, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT2))+1)+
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT3), szEndTime, GetWindowTextLengthA(GetDlgItem(hDlg, IDC_EDIT3))+1)
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT4), szWeek, sizeof(szWeek))+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szLessonName, sizeof(szLessonName))+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szBeginTime, sizeof(szBeginTime))+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT3), szEndTime, sizeof(szEndTime))
                 ) {
                 timetable.mAddLesson(szWeek, szLessonName, szBeginTime, szEndTime);
                 MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
@@ -409,6 +419,66 @@ INT_PTR CALLBACK Settings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case IDOK:
             EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+};
+INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    static HWND hwndList;
+    TCHAR szFile[MAX_PATH * 512] = { 0 };   // 返回用户选择的文件名的缓冲区大一点，本程序允许多选
+    TCHAR szFileTitle[MAX_PATH] = { 0 };    // 返回用户所选文件的文件名和扩展名的缓冲区
+
+    OPENFILENAME ofn = { 0 };
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hDlg;
+    ofn.lpstrFilter =
+        TEXT("ANSI编码的csv文件(*.csv)\0*.csv\0All(*.*)\0*.*\0");
+    ofn.nFilterIndex = 1;                       // 默认选择第1个过滤器
+    ofn.lpstrFile = szFile;                     // 返回用户选择的文件名的缓冲区
+    ofn.lpstrFile[0] = NULL;                    // 不需要初始化文件名编辑控件
+    ofn.nMaxFile = _countof(szFile);
+    ofn.lpstrFileTitle = szFileTitle;	        // 返回用户选择的文件的文件名和扩展名的缓冲区
+    ofn.nMaxFileTitle = _countof(szFileTitle);
+    ofn.lpstrInitialDir = TEXT("C:\\");         // 初始目录
+
+    LPTSTR lpStr;
+    TCHAR szDir[MAX_PATH] = { 0 };
+    TCHAR szBuf[MAX_PATH] = { 0 };
+
+    TCHAR szCSVPath[256];
+    TCHAR szTargetJsonPath[256];
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+            if (
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szCSVPath, sizeof(szCSVPath)) +
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szTargetJsonPath, sizeof(szTargetJsonPath))
+                ) {
+                if (timetable.mImportLessonsFromCsv(szCSVPath, szTargetJsonPath)) {
+                    MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
+                    EndDialog(hDlg, LOWORD(wParam));
+                    return (INT_PTR)TRUE;
+                    break;
+                }
+            }
+            MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
             return (INT_PTR)TRUE;
             break;
         case IDCANCEL:

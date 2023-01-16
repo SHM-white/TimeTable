@@ -10,6 +10,9 @@
 //TimeTable类的实现函数
 int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
 {
+    if (!((bool)week.size() && (bool)Lesson.size() && (bool)sBegin.size() && (bool)sEnd.size())) {
+        return 0;
+    }
     Json::Reader reader;
     Json::Value root;
     Json::StyledWriter sw;
@@ -138,8 +141,15 @@ std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
     return std::string(tmp);
 }
 
-int TimeTable::mImportLessonsFromCsv(const std::string path)
+int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string& TargetFileName)
 {
     CSVEditor CsvEditor{ path };
+    if (CsvEditor.mGetCsvData()) {
+        for (int i{ 0 }; i < CsvEditor.mGetLineCount(); i++) {
+            for (int j{ 0 }; j < CsvEditor[i].size(); j++) {
+                mAddLesson(CsvEditor[i][0], CsvEditor[i][1], CsvEditor[i][2], CsvEditor[i][3]);
+            }
+        }
+    }
     return 0;
 }

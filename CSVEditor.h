@@ -17,12 +17,14 @@ public:
 	}
 	int mSetFilePath(const std::string Path) {
 		mCsvPath = Path;
+		return 0;
 	}
+	int mGetLineCount();
 	int mGetCsvData();
 	//read:[line][order]
 	const std::vector<std::string>& operator[](int line);
 private:
-	std::vector<std::string> line;
+	//std::vector<std::string> line;
 	std::vector<std::vector<std::string>> data;
 	std::string mCsvPath;
 };

@@ -9,6 +9,11 @@
 #include <format>
 //#include <iostream>
 
+int CSVEditor::mGetLineCount()
+{
+	return data.size();
+}
+
 int CSVEditor::mGetCsvData()
 {
     std::fstream in;
@@ -30,7 +35,7 @@ int CSVEditor::mGetCsvData()
 		}
 	}
 	in.close();
-    return 0;
+    return 1;
 }
 
 const std::vector<std::string>& CSVEditor::operator[](int line)

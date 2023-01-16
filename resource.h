@@ -24,9 +24,11 @@
 #define IDD_ADDLESSON                   135
 #define IDD_MOREINFO                    136
 #define IDD_SETTINGS                    137
+#define IDD_IMPORT                      138
 #define IDC_LESSONLIST                  1003
 #define IDC_EDIT1                       1004
 #define IDC_ADD                         1005
+#define IDC_EDIT7                       1005
 #define IDC_EDIT2                       1007
 #define IDC_EDIT4                       1008
 #define IDC_EDIT3                       1009
@@ -51,6 +53,7 @@
 #define IDM_FUTURES                     32786
 #define IDM_MINIMIZE                    32787
 #define ID_Menu                         32788
+#define IDM_IMPORT                      32789
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -58,8 +61,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        138
-#define _APS_NEXT_COMMAND_VALUE         32789
+#define _APS_NEXT_RESOURCE_VALUE        139
+#define _APS_NEXT_COMMAND_VALUE         32790
 #define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
