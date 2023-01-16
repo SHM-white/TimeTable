@@ -49,7 +49,7 @@ int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
         const Json::Value Text = root[Item];
         input = Text.asString();
     }
-    return 0;
+    return 1;
 }
 
 int WindowSettings::mPrintText(HDC& hdc, TimeTable& timetable)

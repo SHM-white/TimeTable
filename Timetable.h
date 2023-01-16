@@ -14,17 +14,20 @@ class TimeTable {
 public:
 	TimeTable() = delete;
 	TimeTable(std::string path) : mLessonInfoPath{ path } {};
-	int mAddLesson(std::string Days, std::string Lesson, std::string sBegin, std::string sEnd);
-	int mAddMoreInfo(std::string Days, std::string Info);
+	int mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd,const std::string& TargetFilePath);
+	int mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd);
+	int mAddMoreInfo(const std::string& week, const std::string& Info);
 	int mGetLesson(std::vector<std::string>& input);
 	int mGetTodayMoreInfo(std::vector<std::string>& input);
 	int mImportLessonsFromCsv(const std::string& path,const std::string& TargetFileName);
 	std::string mGetCurrentLesson(std::string& LessonNull);
 	std::string mGetCurrentTime(const std::string& TextFormat);
+	const std::string& mGetLessonInfoPath();
 private:
 	Lesson CurrentLesson;
 	std::string mLessonInfoPath{ "Lessons.json" };
 	int mTimeToMin(int input);
+	std::string mReplacePath(const std::string& Path);
 };
 
 

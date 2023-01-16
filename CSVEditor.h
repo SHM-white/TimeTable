@@ -14,6 +14,7 @@ public:
 	CSVEditor() = default;
 	CSVEditor(const std::string Path) {
 		mSetFilePath(Path);
+		data.push_back(std::vector<std::string>());
 	}
 	int mSetFilePath(const std::string Path) {
 		mCsvPath = Path;

@@ -32,9 +32,9 @@ public:
 	int miLessonInLine{ 1 };
 	std::vector<TextFormat> msTextFormat;
 	std::string msLessonNull;
-	std::string msLessonInfoFile{ "Lessons.json" };
+	std::string msLessonInfoFile{ ".\\Lessons.json" };
 	COLORREF mcBackGroundColor{ 0x00ffffff };
 private:
-	std::string msSettingPath{ "Config.json" };
+	std::string msSettingPath{ ".\\Config.json" };
 
 };

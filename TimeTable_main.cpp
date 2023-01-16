@@ -24,7 +24,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 HINSTANCE hInst;                                // 当前实例
 TCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-WindowSettings windowsettings{ "Config.json" };
+WindowSettings windowsettings{ ".\\Config.json" };
 HWND hStaticText;
 TimeTable timetable{ windowsettings.msLessonInfoFile };
 // 此代码模块中包含的函数的前向声明:
@@ -288,7 +288,7 @@ INT_PTR CALLBACK DialogMore(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
             break;
         case IDC_ADD://检测文本框是否有文本，并存储
             if (
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szWeek, sizeof(szWeek)) +
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szWeek, sizeof(szWeek)) &&
                 GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szInfo, sizeof(szInfo))
                 )
             {
@@ -338,9 +338,9 @@ INT_PTR CALLBACK AddLesson(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         {
         case IDC_ADD:
             if (
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT4), szWeek, sizeof(szWeek))+
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szLessonName, sizeof(szLessonName))+
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szBeginTime, sizeof(szBeginTime))+
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT4), szWeek, sizeof(szWeek))&&
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szLessonName, sizeof(szLessonName))&&
+                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szBeginTime, sizeof(szBeginTime))&&
                 GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT3), szEndTime, sizeof(szEndTime))
                 ) {
                 timetable.mAddLesson(szWeek, szLessonName, szBeginTime, szEndTime);
@@ -434,15 +434,16 @@ INT_PTR CALLBACK Settings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 };
 INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hwndList;
-    TCHAR szFile[MAX_PATH * 512] = { 0 };   // 返回用户选择的文件名的缓冲区大一点，本程序允许多选
-    TCHAR szFileTitle[MAX_PATH] = { 0 };    // 返回用户所选文件的文件名和扩展名的缓冲区
-
+    static HWND hwndText1;
+    static HWND hwndText2;
+    TCHAR szFile[256] = { 0 };   // 返回用户选择的文件名的缓冲区大一点，本程序允许多选
+    TCHAR szFileTitle[256] = { 0 };    // 返回用户所选文件的文件名和扩展名的缓冲区
+    HANDLE hf;
     OPENFILENAME ofn = { 0 };
     ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hDlg;
+    ofn.hwndOwner = GetParent(hDlg);
     ofn.lpstrFilter =
-        TEXT("ANSI编码的csv文件(*.csv)\0*.csv\0All(*.*)\0*.*\0");
+        TEXT("ANSI编码的csv文件(*.csv)\0*.csv\0JSON文件(*.json)\0*.json\0All(*.*)\0*.*\0");
     ofn.nFilterIndex = 1;                       // 默认选择第1个过滤器
     ofn.lpstrFile = szFile;                     // 返回用户选择的文件名的缓冲区
     ofn.lpstrFile[0] = NULL;                    // 不需要初始化文件名编辑控件
@@ -452,8 +453,8 @@ INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     ofn.lpstrInitialDir = TEXT("C:\\");         // 初始目录
 
     LPTSTR lpStr;
-    TCHAR szDir[MAX_PATH] = { 0 };
-    TCHAR szBuf[MAX_PATH] = { 0 };
+    TCHAR szDir[256] = { 0 };
+    TCHAR szBuf[256] = { 0 };
 
     TCHAR szCSVPath[256];
     TCHAR szTargetJsonPath[256];
@@ -461,6 +462,9 @@ INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     switch (message)
     {
     case WM_INITDIALOG:
+        hwndText1 = GetDlgItem(hDlg, IDC_EDIT1);
+        hwndText2 = GetDlgItem(hDlg, IDC_EDIT2);
+        SetWindowText(hwndText2, (LPCSTR)timetable.mGetLessonInfoPath().c_str());
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
@@ -468,8 +472,8 @@ INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         {
         case IDOK:
             if (
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT1), szCSVPath, sizeof(szCSVPath)) +
-                GetWindowTextA(GetDlgItem(hDlg, IDC_EDIT2), szTargetJsonPath, sizeof(szTargetJsonPath))
+                GetWindowTextA(hwndText1, szCSVPath, sizeof(szCSVPath)) &&
+                GetWindowTextA(hwndText2, szTargetJsonPath, sizeof(szTargetJsonPath))
                 ) {
                 if (timetable.mImportLessonsFromCsv(szCSVPath, szTargetJsonPath)) {
                     MessageBox(hDlg, TEXT("成功"), TEXT("提示"), MB_OK);
@@ -480,6 +484,39 @@ INT_PTR CALLBACK ImportLessons(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
             }
             MessageBox(hDlg, TEXT("失败"), TEXT("提示"), MB_OK);
             return (INT_PTR)TRUE;
+            break;
+        case IDC_OPEN:
+            if (!MessageBox(hDlg, TEXT("该按钮会影响文件读写，是否打开选择文件对话框？"), TEXT("提示"), MB_OKCANCEL)) {
+                ofn.nFilterIndex = 1;
+                ofn.lpstrTitle = TEXT("请选择要打开的文件");// 对话框标题栏中显示的字符串
+                ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_CREATEPROMPT;
+                if (GetOpenFileName(&ofn)) {
+                    /*hf = CreateFile(ofn.lpstrFile,
+                        GENERIC_READ,
+                        0,
+                        (LPSECURITY_ATTRIBUTES)NULL,
+                        OPEN_EXISTING,
+                        FILE_ATTRIBUTE_NORMAL,
+                        (HANDLE)NULL);*/
+                        //更改文本框显示内容
+                    SetWindowText(hwndText1, ofn.lpstrFile);
+                    //CloseHandle(hf);
+                }
+            }
+            //ofn = {};
+            break;
+        case IDC_SAVEAS:
+            if (!MessageBox(hDlg, TEXT("该按钮会影响文件读写，是否打开选择文件对话框？"), TEXT("提示"), MB_OKCANCEL)) {
+                ofn.nFilterIndex = 2;
+                ofn.lpstrTitle = TEXT("请选择要保存的文件名");  // 对话框标题栏中显示的字符串
+                ofn.lpstrDefExt = TEXT("json");                  // 默认扩展名
+                ofn.Flags = OFN_EXPLORER | OFN_CREATEPROMPT;
+                if (GetSaveFileName(&ofn))
+                {
+                    SetWindowText(hwndText2, ofn.lpstrFile);
+                }
+            }
+            //ofn = {};
             break;
         case IDCANCEL:
             EndDialog(hDlg, LOWORD(wParam));

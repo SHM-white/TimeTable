@@ -11,7 +11,7 @@
 
 int CSVEditor::mGetLineCount()
 {
-	return data.size();
+	return (int)data.size();
 }
 
 int CSVEditor::mGetCsvData()
@@ -20,8 +20,10 @@ int CSVEditor::mGetCsvData()
 	std::string line;
     in.open(mCsvPath, std::ios::in);
     if (!in.is_open()) {
+		in.close();
         return 0;
     }
+	data.clear();
 	while (std::getline(in,line)) {
 		std::string columElement;
 		std::stringstream stream(line);

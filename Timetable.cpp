@@ -8,9 +8,13 @@
 #include "CSVEditor.h"
 
 //TimeTable类的实现函数
-int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin,std::string sEnd)
+int TimeTable::mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd)
 {
-    if (!((bool)week.size() && (bool)Lesson.size() && (bool)sBegin.size() && (bool)sEnd.size())) {
+    return mAddLesson(week, Lesson, sBegin, sEnd, mLessonInfoPath);
+}
+int TimeTable::mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd, const std::string& TargetFilePath)
+{
+    if (!((bool)week.size() && (bool)Lesson.size() && (bool)sBegin.size() && (bool)sEnd.size() && (bool)TargetFilePath.size())) {
         return 0;
     }
     Json::Reader reader;
@@ -18,22 +22,32 @@ int TimeTable::mAddLesson(std::string week,std::string Lesson,std::string sBegin
     Json::StyledWriter sw;
     std::fstream os;
     Json::Value Current;
-    os.open(mLessonInfoPath, std::ios::out | std::ios::in);
+    os.open(TargetFilePath, std::ios::in);
     if (!os.is_open()) {
+        os.close();
+        os.clear();
         return 0;
     }
+    if (!reader.parse(os, root)) {
+        os.close();
+        os.clear();
+        return 0;
+    }
+    os.close();
+    os.clear();
+    os.open(TargetFilePath, std::ios::out | std::ios::trunc);
     Current.append(Lesson);
     Current.append(sBegin);
     Current.append(sEnd);
-    reader.parse(os, root);
     root[week]["Lessons"].append(Current);
     os.seekp(std::ios::beg);
     os << sw.write(root);
     os.close();
+    os.clear();
     return 1;
 }
 
-int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
+int TimeTable::mAddMoreInfo(const std::string& Days, const std::string& Info)
 {
     std::fstream os;
     os.open(mLessonInfoPath, std::ios::out | std::ios::in);
@@ -48,12 +62,20 @@ int TimeTable::mAddMoreInfo(std::string Days, std::string Info)
     os.seekp(std::ios::beg);
     os << sw.write(root);
     os.close();
+    os.clear();
     return 0;
 }
 
 int TimeTable::mTimeToMin(int input)
 {
     return (input-input%100)/100*60+input%100;
+}
+
+std::string TimeTable::mReplacePath(const std::string& Path)
+{
+    std::string old = mLessonInfoPath;
+    mLessonInfoPath = Path;
+    return old;
 }
 
 int TimeTable::mGetLesson(std::vector<std::string>& input)
@@ -75,6 +97,8 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
             }
         }
     }
+    in.close();
+    in.clear();
     return 1;
 }
 
@@ -94,6 +118,7 @@ int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
             input.push_back(Infos[i].asString());
         }
     }
+    in.close();
     return 1;
 }
 
@@ -126,6 +151,7 @@ std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
             CurrentLesson.mSetValue(LessonNull, 0, 0);
         }
         in.close();
+        in.clear();
     }
     return CurrentLesson.mGetName();
 }
@@ -145,11 +171,16 @@ int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string&
 {
     CSVEditor CsvEditor{ path };
     if (CsvEditor.mGetCsvData()) {
+        //std::string old = mReplacePath(TargetFileName);
         for (int i{ 0 }; i < CsvEditor.mGetLineCount(); i++) {
-            for (int j{ 0 }; j < CsvEditor[i].size(); j++) {
-                mAddLesson(CsvEditor[i][0], CsvEditor[i][1], CsvEditor[i][2], CsvEditor[i][3]);
-            }
+            mAddLesson(CsvEditor[i][0], CsvEditor[i][1], CsvEditor[i][2], CsvEditor[i][3],TargetFileName);
         }
+        //mReplacePath(old);
+        return 1;
     }
     return 0;
+}
+const std::string& TimeTable::mGetLessonInfoPath()
+{
+    return mLessonInfoPath;
 }
