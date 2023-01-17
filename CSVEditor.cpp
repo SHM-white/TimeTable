@@ -7,13 +7,13 @@
 #include <vector>
 #include "include\json\json.h"
 #include <format>
-//#include <iostream>
 
+//获取csv行数
 int CSVEditor::mGetLineCount()
 {
 	return (int)data.size();
 }
-
+//读取csv数据并存入成员二维数组中
 int CSVEditor::mGetCsvData()
 {
     std::fstream in;
@@ -39,7 +39,7 @@ int CSVEditor::mGetCsvData()
 	in.close();
     return 1;
 }
-
+//重载下标运算符
 const std::vector<std::string>& CSVEditor::operator[](int line)
 {
     return data[line];

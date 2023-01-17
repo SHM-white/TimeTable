@@ -6,7 +6,9 @@
 #include "include\json\json.h"
 #include<format>
 #include<strsafe.h>
+
 //WindowSettings类的实现函数
+//初始化时获取设置
 int WindowSettings::mGetWindowSettings()
 {
     std::ifstream in(msSettingPath, std::ios::in);
@@ -42,7 +44,7 @@ int WindowSettings::mGetWindowSettings()
     }
     return 1;
 }
-
+//获取配置文件中某一项文本
 int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
 {
     std::ifstream in(msSettingPath, std::ios::in);
@@ -58,7 +60,7 @@ int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
     }
     return 1;
 }
-
+//绘制主窗口文字
 int WindowSettings::mPrintText(HDC& hdc, TimeTable& timetable)
 {
       int i = 1;
@@ -84,7 +86,7 @@ int WindowSettings::mPrintText(HDC& hdc, TimeTable& timetable)
       
     return 0;
 }
-
+//切换菜单项勾选状态
 LPMENUITEMINFO WindowSettings::mSwitchMenuItemCheck(HWND& hWnd, HMENU& hMenu, DWORD MenuItem)
 {
     static MENUITEMINFO MenuItemInfo;

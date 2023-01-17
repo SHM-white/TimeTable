@@ -9,10 +9,12 @@
 #include "CSVEditor.h"
 
 //TimeTable类的实现函数
+//添加课程的4参数重载函数，兼容旧代码（其实就是懒），默认写入成员变量保存的路径
 int TimeTable::mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd)
 {
     return mAddLesson(week, Lesson, sBegin, sEnd, mLessonInfoPath);
 }
+//添加课程5参数函数
 int TimeTable::mAddLesson(const std::string& week, const std::string& Lesson, const std::string& sBegin, const std::string& sEnd, const std::string& TargetFilePath)
 {
     if (!((bool)week.size() && (bool)Lesson.size() && (bool)sBegin.size() && (bool)sEnd.size() && (bool)TargetFilePath.size())) {
@@ -47,7 +49,7 @@ int TimeTable::mAddLesson(const std::string& week, const std::string& Lesson, co
     os.clear();
     return 1;
 }
-
+//添加更多信息，有空也加个重载
 int TimeTable::mAddMoreInfo(const std::string& Days, const std::string& Info)
 {
     std::fstream os;
@@ -66,19 +68,19 @@ int TimeTable::mAddMoreInfo(const std::string& Days, const std::string& Info)
     os.clear();
     return 0;
 }
-
+//转换时间为分钟数便于比较大小
 int TimeTable::mTimeToMin(int input)
 {
     return (input-input%100)/100*60+input%100;
 }
-
+//暂时替换文件路径，同时返回旧的文件路径，只有内部函数能调用
 std::string TimeTable::mReplacePath(const std::string& Path)
 {
     std::string old = mLessonInfoPath;
     mLessonInfoPath = Path;
     return old;
 }
-
+//获取所有的课程并返回至传入的数组
 int TimeTable::mGetLesson(std::vector<std::string>& input)
 {
     Json::Reader reader;
@@ -93,7 +95,7 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
         for (auto a : Days) {
             const Json::Value Lessons = root[a]["Lessons"];
             for (unsigned int i = 0; i < Lessons.size(); ++i) {
-                std::string result{ a + "   " + Lessons[i][0].asString() + "   " + Lessons[i][1].asString() + "   " + Lessons[i][2].asString() };
+                std::string result{ a + "\t" + Lessons[i][0].asString() + "\t" + Lessons[i][1].asString() + "\t" + Lessons[i][2].asString() };
                 input.push_back(result);
             }
         }
@@ -102,7 +104,7 @@ int TimeTable::mGetLesson(std::vector<std::string>& input)
     in.clear();
     return 1;
 }
-
+//获取今日的信息并存入传入的数组
 int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
 {
     std::ifstream in(mLessonInfoPath, std::ios::in);
@@ -122,7 +124,7 @@ int TimeTable::mGetTodayMoreInfo(std::vector<std::string>& input)
     in.close();
     return 1;
 }
-
+//获取当前时间的课程
 std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
 {
     std::string timeCurrentTime{ mGetCurrentTime("%H%M") };
@@ -165,7 +167,7 @@ std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
     strftime(tmp, sizeof(tmp), TextFormat.c_str(), &structm);
     return std::string(tmp);
 }
-
+//从csv导入课程至指定文件
 int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string& TargetFileName)
 {
     CSVEditor CsvEditor{ path };
@@ -177,10 +179,12 @@ int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string&
     }
     return 0;
 }
+//获取课程信息地址
 const std::string& TimeTable::mGetLessonInfoPath()
 {
     return mLessonInfoPath;
 }
+//获取当前时间并存入传入的结构中
 int TimeTable::mGetCurrentTime(tm& tmTime)
 {
     time_t timep;
@@ -188,6 +192,7 @@ int TimeTable::mGetCurrentTime(tm& tmTime)
     localtime_s(&tmTime, &timep);
     return 0;
 }
+//获取当前时间至指定时间的倒计时
 std::string TimeTable::mGetCountDown(tm tmIn, const std::string& TimeFormat)
 {
     tm tmCurrent;
@@ -199,39 +204,7 @@ std::string TimeTable::mGetCountDown(tm tmIn, const std::string& TimeFormat)
         timeIn = 0;
     }
     gmtime_s(&tmIn, &timeIn);
-    //mGetCurrentTime(tmCurrent);
-    /*tmIn.tm_year -= tmCurrent.tm_year;
-    tmIn.tm_mon -= tmCurrent.tm_mon;
-    tmIn.tm_mday -= tmCurrent.tm_mday;
-    tmIn.tm_hour -= tmCurrent.tm_hour;
-    tmIn.tm_min -= tmCurrent.tm_min;
-    tmIn.tm_sec -= tmCurrent.tm_sec;
-    if (tmIn.tm_sec < 0) {
-        tmIn.tm_sec += 60;
-        tmIn.tm_min -= 1;
-    }
-    if (tmIn.tm_min < 0) {
-        tmIn.tm_min += 60;
-        tmIn.tm_hour -= 1;
-    }
-    if (tmIn.tm_hour < 0) {
-        tmIn.tm_hour += 24;
-        tmIn.tm_mday -= 1;
-    }
-    if (tmIn.tm_mday < 0) {
-        tmIn.tm_mday += 30;
-        tmIn.tm_mon -= 1;
-    }
-    if (tmIn.tm_mon < 0) {
-        tmIn.tm_mon += 12;
-        tmIn.tm_year -= 1;
-    }
-    if (tmIn.tm_year < 0) {
-        tmIn = {0};
-    }*/
-    
     char tmp[256];
     StringCbPrintf(tmp, sizeof(tmp), TimeFormat.c_str(), tmIn.tm_mon, tmIn.tm_mday-1, tmIn.tm_hour, tmIn.tm_min, tmIn.tm_sec);
-    //strftime(tmp, sizeof(tmp), TimeFormat.c_str(), &tmIn);
     return tmp;
 }
