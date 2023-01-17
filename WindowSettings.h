@@ -30,11 +30,12 @@ public:
 	int miWindowX{ 20 };
 	int miWindowY{ 20 };
 	int miLessonInLine{ 1 };
+	int miCountDownDayInLine{ 10 };
 	std::vector<TextFormat> msTextFormat;
 	std::string msLessonNull;
 	std::string msLessonInfoFile{ ".\\Lessons.json" };
 	COLORREF mcBackGroundColor{ 0x00ffffff };
 private:
+	tm mCountDownDay;
 	std::string msSettingPath{ ".\\Config.json" };
-
 };

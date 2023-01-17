@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <vector>
+#include <strsafe.h>
 #include "include\json\json.h"
 #include<format>
 #include "CSVEditor.h"
@@ -158,11 +159,9 @@ std::string TimeTable::mGetCurrentLesson(std::string& LessonNull)
 
 std::string TimeTable::mGetCurrentTime(const std::string& TextFormat)
 {
-    time_t timep;
-    time(&timep);
     char tmp[256];
     tm structm;
-    localtime_s(&structm, &timep);
+    mGetCurrentTime(structm);
     strftime(tmp, sizeof(tmp), TextFormat.c_str(), &structm);
     return std::string(tmp);
 }
@@ -171,11 +170,9 @@ int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string&
 {
     CSVEditor CsvEditor{ path };
     if (CsvEditor.mGetCsvData()) {
-        //std::string old = mReplacePath(TargetFileName);
         for (int i{ 0 }; i < CsvEditor.mGetLineCount(); i++) {
             mAddLesson(CsvEditor[i][0], CsvEditor[i][1], CsvEditor[i][2], CsvEditor[i][3],TargetFileName);
         }
-        //mReplacePath(old);
         return 1;
     }
     return 0;
@@ -183,4 +180,58 @@ int TimeTable::mImportLessonsFromCsv(const std::string& path, const std::string&
 const std::string& TimeTable::mGetLessonInfoPath()
 {
     return mLessonInfoPath;
+}
+int TimeTable::mGetCurrentTime(tm& tmTime)
+{
+    time_t timep;
+    time(&timep);
+    localtime_s(&tmTime, &timep);
+    return 0;
+}
+std::string TimeTable::mGetCountDown(tm tmIn, const std::string& TimeFormat)
+{
+    tm tmCurrent;
+    time_t timeIn{ mktime(&tmIn) };
+    time_t timeCurrent;
+    time(&timeCurrent);
+    timeIn -= timeCurrent;
+    if (timeIn < 0) {
+        timeIn = 0;
+    }
+    gmtime_s(&tmIn, &timeIn);
+    //mGetCurrentTime(tmCurrent);
+    /*tmIn.tm_year -= tmCurrent.tm_year;
+    tmIn.tm_mon -= tmCurrent.tm_mon;
+    tmIn.tm_mday -= tmCurrent.tm_mday;
+    tmIn.tm_hour -= tmCurrent.tm_hour;
+    tmIn.tm_min -= tmCurrent.tm_min;
+    tmIn.tm_sec -= tmCurrent.tm_sec;
+    if (tmIn.tm_sec < 0) {
+        tmIn.tm_sec += 60;
+        tmIn.tm_min -= 1;
+    }
+    if (tmIn.tm_min < 0) {
+        tmIn.tm_min += 60;
+        tmIn.tm_hour -= 1;
+    }
+    if (tmIn.tm_hour < 0) {
+        tmIn.tm_hour += 24;
+        tmIn.tm_mday -= 1;
+    }
+    if (tmIn.tm_mday < 0) {
+        tmIn.tm_mday += 30;
+        tmIn.tm_mon -= 1;
+    }
+    if (tmIn.tm_mon < 0) {
+        tmIn.tm_mon += 12;
+        tmIn.tm_year -= 1;
+    }
+    if (tmIn.tm_year < 0) {
+        tmIn = {0};
+    }*/
+    
+    char tmp[256];
+    StringCbPrintf(tmp, sizeof(tmp), TimeFormat.c_str(), tmIn.tm_mon, tmIn.tm_mday-1, tmIn.tm_hour, tmIn.tm_min, tmIn.tm_sec);
+    //strftime(tmp, sizeof(tmp), TimeFormat.c_str(), &tmIn);
+    return tmp;
 }

@@ -20,8 +20,10 @@ public:
 	int mGetLesson(std::vector<std::string>& input);
 	int mGetTodayMoreInfo(std::vector<std::string>& input);
 	int mImportLessonsFromCsv(const std::string& path,const std::string& TargetFileName);
+	std::string mGetCountDown(tm tmIn, const std::string& TimeFormat);
 	std::string mGetCurrentLesson(std::string& LessonNull);
 	std::string mGetCurrentTime(const std::string& TextFormat);
+	int mGetCurrentTime(tm& tmTime);
 	const std::string& mGetLessonInfoPath();
 private:
 	Lesson CurrentLesson;

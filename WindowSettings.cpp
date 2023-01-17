@@ -32,8 +32,15 @@ int WindowSettings::mGetWindowSettings()
             TextFormat textformat(Format[2][0].asInt(), Format[2][1].asInt(), Format[3].asInt(), Format[1].asString(), Format[0].asString(), RGB(Format[4][0].asInt(), Format[4][1].asInt(), Format[4][2].asInt()));
             msTextFormat.push_back(textformat);
         }
+        miCountDownDayInLine = Settings["CountDownDayInLine"].asInt();
+        mCountDownDay.tm_year = Settings["CountDownDay"][0].asInt() - 1900;
+        mCountDownDay.tm_mon = Settings["CountDownDay"][1].asInt() - 1;
+        mCountDownDay.tm_mday = Settings["CountDownDay"][2].asInt();
+        mCountDownDay.tm_hour = Settings["CountDownDay"][3].asInt();
+        mCountDownDay.tm_min = Settings["CountDownDay"][4].asInt();
+        mCountDownDay.tm_sec = Settings["CountDownDay"][5].asInt();
     }
-    return 0;
+    return 1;
 }
 
 int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
@@ -54,15 +61,21 @@ int WindowSettings::mGetTextItem(const std::string& Item, std::string& input)
 
 int WindowSettings::mPrintText(HDC& hdc, TimeTable& timetable)
 {
-      int i = 0;
+      int i = 1;
       for (TextFormat a : msTextFormat) {
           HFONT hFont = CreateFont(a.miTextSize, 0, 0, 0,0, 0, 0, 0, GB2312_CHARSET, 0, 0, CLEARTYPE_QUALITY, 0, a.msFontName.c_str());
           SelectObject(hdc, hFont);
           SetTextColor(hdc, a.color);
-          std::string Text{ timetable.mGetCurrentTime(a.msTextFormat) };
-          if (i == (miLessonInLine - 1)) {
-              Text+=timetable.mGetCurrentLesson(msLessonNull);
+          std::string Text;
+          if (i == miLessonInLine) {
+              Text = timetable.mGetCurrentTime(a.msTextFormat) + timetable.mGetCurrentLesson(msLessonNull);
           }   
+          else if (i == miCountDownDayInLine) {
+              Text = timetable.mGetCountDown(mCountDownDay, a.msTextFormat);
+          }
+          else {
+              Text = timetable.mGetCurrentTime(a.msTextFormat);
+          }
           TextOut(hdc, a.mpTextLocation.x, a.mpTextLocation.y, Text.c_str(), (int)Text.length());
           SetTextColor(hdc, RGB(0, 0, 0));
           DeleteObject(hFont);
